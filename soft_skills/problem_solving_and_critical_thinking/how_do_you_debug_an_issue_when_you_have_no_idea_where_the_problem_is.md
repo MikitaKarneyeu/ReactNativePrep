@@ -1,0 +1,9 @@
+When I'm completely stuck on a bug, I follow a structured process that moves from information gathering to isolation to hypothesis testing. The worst thing to do is randomly change code and hope something works.
+
+I start by gathering information: What are the exact symptoms? When does it happen—always, intermittently, or under specific conditions? What changed recently? I check git log for recent commits, review deployment history, and look at monitoring dashboards for anomalies. I also try to reproduce the issue consistently, because a bug you can reproduce is a bug you can fix.
+
+If I still can't identify the source, I use binary search debugging. I narrow down the problem by isolating which part of the system is responsible. For frontend bugs, I use browser dev tools to check network requests, console errors, and component state. For backend issues, I add strategic log statements at key points in the request lifecycle to trace data flow. For database issues, I run the query directly and examine the execution plan. The goal is to divide the problem space in half repeatedly until I find the culprit.
+
+I also leverage external information sources. I search Stack Overflow and GitHub issues for similar symptoms. If the bug involves a library, I check its issue tracker and changelog. Sometimes a bug is caused by a dependency update you didn't even know happened. I check `package-lock.json` or equivalent for recent changes.
+
+If I've spent 30-45 minutes without progress, I explain the problem out loud—either to a colleague (rubber duck debugging) or by writing it down in a document. Articulating the problem forces me to confront my assumptions. I've found many bugs simply by writing "I expect X to happen, but Y happens instead" and realizing my expectation was based on a wrong assumption about how a piece of code worked. The key is to stay systematic and avoid panic—every bug has a cause, and methodical investigation will find it.

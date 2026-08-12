@@ -1,0 +1,11 @@
+Common vision datasets serve as benchmarks for evaluating models and as pre-training data for transfer learning. Understanding these datasets is important for selecting appropriate pre-trained models and understanding model capabilities.
+
+ImageNet (ILSVRC) is the most influential dataset—1.2 million images across 1,000 categories. Most vision models are pre-trained on ImageNet, learning general visual features that transfer to many tasks. The ImageNet challenge drove the deep learning revolution, with AlexNet (2012) marking the beginning of deep learning dominance in computer vision.
+
+COCO (Common Objects in Context) contains 330K images with 80 object categories annotated with bounding boxes, segmentation masks, and captions. It's the standard benchmark for object detection and instance segmentation. COCO's images are complex scenes with multiple objects in context, making it more challenging than ImageNet's single-object images.
+
+For specialized domains: CIFAR-10/100 (60K tiny images, 10/100 classes) is used for quick prototyping and research. MNIST (70K handwritten digits) is the classic introductory dataset. Pascal VOC (20 classes, detection and segmentation) is an older but still-used benchmark. Open Images (9M images, 600+ classes) provides large-scale detection and segmentation annotations. LAION-5B (5.85 billion image-text pairs) is used for training CLIP and other vision-language models.
+
+Medical imaging datasets include ChestX-ray14 (112K chest X-rays), ISIC (skin lesion images), and BraTS (brain tumor MRI). These enable training models for specific medical applications. Satellite imagery datasets include xView (object detection in satellite images) and SpaceNet (building footprint detection).
+
+When using pre-trained models, knowing which dataset they were trained on helps predict their behavior. Models pre-trained on ImageNet recognize common objects well but may struggle with specialized domains (medical images, satellite imagery, industrial defects). Fine-tuning on domain-specific data significantly improves performance. For data collection, start with publicly available datasets, supplement with domain-specific data, and use data augmentation to increase diversity. Be aware of dataset biases—ImageNet is biased toward Western objects and has known annotation issues.

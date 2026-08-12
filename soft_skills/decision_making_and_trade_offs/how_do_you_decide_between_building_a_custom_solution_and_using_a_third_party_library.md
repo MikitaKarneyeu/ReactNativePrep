@@ -1,0 +1,11 @@
+The build vs. buy decision is one of the most consequential technical decisions a developer makes. My framework evaluates the decision across five dimensions: core competency, cost, control, risk, and time.
+
+First, I ask: is this problem part of our core competency? If we're building an e-commerce platform, our core competency is the shopping experience—not authentication, not email delivery, not payment processing. For non-core problems, I strongly lean toward third-party solutions. Building a custom authentication system when Auth0 exists is almost never the right call unless you have very specific requirements that no provider meets. Your engineering time is better spent on the things that differentiate your product.
+
+Second, I evaluate the total cost of ownership. A third-party library has ongoing costs: licensing fees, integration effort, upgrade maintenance, and potential vendor lock-in. A custom solution has upfront development cost plus ongoing maintenance cost. I estimate both over a 2-year horizon. Sometimes a library that seems cheap upfront becomes expensive when you factor in the effort to work around its limitations.
+
+Third, I consider control and customization. If the requirement is highly specific to your business and no third-party solution covers it well, building may be the only option. But I also consider whether the requirement is truly unique or if I'm just attached to a particular implementation. Many "unique" requirements can be met by configuring an existing tool.
+
+Fourth, I assess the risk. Third-party libraries have risks: they may be abandoned, have security vulnerabilities, or change their API in breaking ways. Custom solutions have risks: bugs, maintenance burden, and key-person dependency. I evaluate which set of risks is more manageable for our team.
+
+Finally, I consider time. If we need the capability in a week, buying is almost always faster. If we have months and the capability is core to our product, building may be worth the investment. I also consider reversibility—it's easier to replace a third-party library than to sunset a custom-built system. My default is to start with a third-party solution for speed, and only build custom when the evidence clearly shows that the existing options are inadequate for our needs.

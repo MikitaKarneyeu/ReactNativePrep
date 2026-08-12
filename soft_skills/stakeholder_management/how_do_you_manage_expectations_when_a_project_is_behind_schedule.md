@@ -1,0 +1,11 @@
+When a project is behind schedule, the worst thing to do is hide it and hope you'll catch up. My approach is to communicate early, be honest about the situation, and come with options.
+
+I flag delays as soon as I'm confident they're real—not when the deadline has already passed. As soon as I see that a sprint goal or milestone is at risk, I notify the relevant stakeholders with a clear assessment: what's behind, why, and what the new realistic timeline is. I do this in writing (email or Slack) so there's a record, and I follow up in person if needed.
+
+I come to the conversation with options, not just problems. For example: "We're 3 days behind on the checkout feature because the payment API integration is more complex than expected. Here are three options: (1) delay the launch by one week to deliver the full feature, (2) launch with credit card support only and add other payment methods in a follow-up, (3) bring in another developer to parallelize the remaining work. My recommendation is option 2 because it meets 90% of user needs and keeps us on the campaign timeline."
+
+I also explain the root cause without making excuses. Stakeholders appreciate understanding why something is delayed—it helps them make informed decisions and prevents the same issue in the future. I frame it factually: "The API documentation didn't cover the rate limiting behavior we encountered during load testing. We've now resolved it, but it added 3 days to the timeline."
+
+I update the project plan with the revised timeline and communicate it to all affected parties. I don't make optimistic promises to compensate—I set a realistic date and commit to it. If there's a chance of further delays, I flag that too: "I'm confident in the revised date, but there's a small risk that the third-party API approval could add another 2 days." Under-promise and over-deliver is better than the reverse.
+
+Finally, after the project ships, I do a brief retrospective on why we were behind. Was the estimate unrealistic? Did we miss a dependency? Was there scope creep? I document the findings and apply them to future planning.

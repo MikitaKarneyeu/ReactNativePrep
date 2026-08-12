@@ -1,0 +1,11 @@
+The refactor vs. work-around decision depends on three factors: the scope of the problem, the frequency of encountering it, and the cost of each approach. I use a simple decision framework to make this call consistently.
+
+I refactor when the code is a persistent obstacle. If I've worked around the same piece of code three times, it's time to fix it. The cumulative cost of workarounds—in developer time, in code complexity, in bugs introduced by the workarounds—usually exceeds the cost of a proper refactor. I also refactor when the code is actively causing bugs or when it's a barrier to onboarding new team members who can't understand it.
+
+I work around when the problem is isolated and infrequent. If I encounter messy code in a part of the system that rarely changes, and my change is small and self-contained, a targeted work-around (an adapter, a wrapper, or a carefully scoped change) is more pragmatic than a full refactor. The risk of refactoring code you don't fully understand—especially code without tests—can be higher than the risk of leaving it alone.
+
+I also consider the blast radius. A refactor that touches many files or affects critical functionality has a higher risk and requires more testing. If the refactoring scope is large and my actual task is small, a work-around that isolates my code from the mess is often the right call. I can create a clean interface that hides the complexity and refactor the internals later, when I have more time and better test coverage.
+
+The decision also depends on the team's capacity. If we're in a crunch with a hard deadline, workarounds are appropriate. If we have slack in the schedule, investing in refactoring pays dividends. I advocate for a balance—include some refactoring capacity in every sprint (the "boy scout rule") so that the codebase gradually improves without requiring dedicated refactoring sprints.
+
+When I do decide to refactor, I do it incrementally. I don't attempt a massive rewrite. I make small, safe changes that are easy to review and verify. Each change is a separate commit that can be reverted independently. This reduces risk and makes the refactoring reviewable.

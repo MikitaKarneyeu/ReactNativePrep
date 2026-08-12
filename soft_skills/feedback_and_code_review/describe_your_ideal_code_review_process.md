@@ -1,0 +1,11 @@
+My ideal code review process balances thoroughness with speed and treats reviews as collaborative learning opportunities rather than gatekeeping exercises.
+
+The process starts with the author. Before requesting a review, the author writes a clear PR description that explains what the change does, why it's needed, and any design decisions or trade-offs they made. They include screenshots or recordings for UI changes, link to the relevant ticket, and call out areas where they specifically want feedback. The PR should be focused—ideally under 400 lines of diff—so reviewers can give it proper attention. If the change is large, the author breaks it into a stack of smaller PRs.
+
+Reviewers are assigned based on expertise and context. I prefer two reviewers: one who owns the affected area (for technical accuracy) and one who's less familiar (for clarity and learning). The less experienced reviewer often catches assumptions that experts take for granted. Reviews should be completed within one business day—waiting longer kills momentum and creates merge conflicts.
+
+During the review, I use a structured approach. I read the PR description first, then review the code in order (not jumping around), and leave comments that explain my reasoning. I use a comment convention: "nit:" for minor suggestions, "question:" for things I'm curious about, and unmarked for issues I consider important. This helps the author prioritize their responses.
+
+After the review, the author addresses feedback and responds to every comment—either with a code change or an explanation. If there's disagreement, it's resolved through discussion, not by ignoring the comment. Once all feedback is addressed, the reviewer approves and the PR is merged.
+
+Post-merge, I encourage a culture of retrospectives on the review process itself. If reviews are consistently slow, we discuss why and adjust. If a particular type of issue keeps slipping through, we add it to the review checklist. The process should continuously improve based on the team's experience.

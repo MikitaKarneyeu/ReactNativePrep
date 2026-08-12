@@ -1,0 +1,10 @@
+Temperature is a parameter that controls the randomness of an LLM's output by scaling the logits (raw model outputs) before the softmax function converts them to probabilities. A temperature of 1.0 uses the model's raw probabilities. Lower temperatures (0.0-0.5) make the distribution sharper—the model becomes more confident and deterministic, choosing the most likely tokens. Higher temperatures (0.7-1.5) flatten the distribution—the model becomes more creative and diverse, with less likely tokens having a higher chance of selection.
+
+The mathematical effect: logits are divided by temperature before softmax. With temperature T:
+- T → 0: Approaches greedy decoding (always pick the highest probability token). Output is deterministic and repetitive.
+- T = 1: Uses the model's learned probability distribution. Balanced between creativity and coherence.
+- T → ∞: Approaches uniform distribution (all tokens equally likely). Output becomes random and incoherent.
+
+Practical guidelines: use temperature 0 for tasks requiring precision and consistency—code generation, factual Q&A, data extraction, and structured output. The same input always produces the same output. Use temperature 0.3-0.7 for balanced tasks—writing assistance, summarization, and conversational responses. Some variation adds naturalness without sacrificing coherence. Use temperature 0.7-1.0 for creative tasks—brainstorming, creative writing, and generating diverse alternatives. Higher temperatures produce more surprising and varied outputs.
+
+Other sampling parameters interact with temperature. Top-p (nucleus sampling) limits token selection to the smallest set of tokens whose cumulative probability exceeds p. Top-k limits selection to the k most probable tokens. These provide more nuanced control than temperature alone. In practice, many developers use temperature 0 for production systems requiring consistency, and higher temperatures for creative applications. When using function calling or JSON mode, always use low temperature to ensure valid structured output.

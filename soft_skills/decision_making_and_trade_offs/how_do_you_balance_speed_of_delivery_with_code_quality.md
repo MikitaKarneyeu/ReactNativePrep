@@ -1,0 +1,11 @@
+Balancing speed and quality is a false dichotomy when approached correctly—the real question is "what level of quality is appropriate for this context?" My approach uses context to calibrate the balance rather than applying a one-size-fits-all standard.
+
+For a prototype or proof of concept, speed is the priority. I write minimal code, skip comprehensive error handling, and use hardcoded values where appropriate. The goal is to validate an idea quickly, and the code will be thrown away or rewritten if the idea is validated. I'm explicit with the team that this is prototype-quality code and should not be treated as production-ready.
+
+For a feature in production that will be maintained long-term, quality is the priority. I write clean, tested, well-documented code because the cost of bugs and maintenance in production far exceeds the cost of writing quality code upfront. I follow the team's patterns, write comprehensive tests, and handle edge cases properly.
+
+For most work, the answer is somewhere in between. I use a concept of "just enough quality"—the minimum quality needed for the specific context. A critical payment flow needs high quality (thorough testing, error handling, security review). An internal admin tool that three people use can tolerate lower quality (basic tests, simpler error handling). I invest quality effort where the impact of defects is highest.
+
+I also distinguish between different types of quality. Correctness (does it work?) is non-negotiable—shipping code that doesn't work is never acceptable. Security is non-negotiable—shipping code with known vulnerabilities is never acceptable. Code elegance and perfect abstraction are negotiable—I'll ship code that's slightly inelegant if it meets the business need and can be improved later.
+
+The key insight is that quality is an investment, not a cost. Code that's written quickly but poorly creates a maintenance burden that slows down all future development. Code that's written with appropriate quality enables faster development over time. The sweet spot is investing enough quality to maintain velocity without over-investing in quality that doesn't provide meaningful returns.

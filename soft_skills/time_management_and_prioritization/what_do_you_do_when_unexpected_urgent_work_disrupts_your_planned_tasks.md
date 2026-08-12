@@ -1,0 +1,9 @@
+Unexpected urgent work is inevitable in software development—production incidents, critical bug reports, or sudden stakeholder requests. My approach is to triage quickly, communicate impact, and adjust plans explicitly.
+
+First, I assess the urgency objectively. Not everything that arrives as "urgent" truly is. A production issue affecting all users is genuinely urgent. A stakeholder's request that feels urgent to them but isn't time-sensitive can often be scheduled. I ask: what's the impact of delaying this by a day? By a week? If the answer is "nothing bad happens," it's not truly urgent.
+
+If the work is genuinely urgent, I accept the disruption and communicate the impact on my planned work. I don't silently absorb it—I tell my manager and team: "I need to switch to this production issue. My current task (feature X) will be delayed by a day. I'll update the ticket with the new ETA." This makes the cost of the interruption visible and allows the team to adjust expectations.
+
+I then focus fully on the urgent task. Context-switching is expensive, so when I switch, I switch completely. I make a quick note of where I stopped on my previous task (what I was doing, what's left, any open questions) so I can resume efficiently when I return. I use a simple "parking lot" note in my task manager or a pinned message to myself.
+
+After resolving the urgent work, I do a brief debrief. Was this preventable? Could monitoring have caught it earlier? Should this type of issue have a runbook? I share findings with the team. If the interruption was a one-time incident, I move on. If it's a pattern, I advocate for investment in prevention—better monitoring, automated alerts, or dedicated on-call rotations—so the same type of interruption doesn't keep happening. The goal is to handle urgent work effectively while reducing its frequency over time.

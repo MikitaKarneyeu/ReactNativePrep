@@ -1,0 +1,11 @@
+Mid-sprint requirement changes are disruptive but sometimes necessary. My approach is to assess the impact, communicate the trade-offs, and make a deliberate decision rather than silently absorbing the change.
+
+First, I understand the change fully. What specifically changed? Why is it changing now? Is this a new requirement, a modification of an existing one, or a clarification of something that was ambiguous? The nature of the change affects how I handle it. A clarification of an ambiguous requirement is different from a fundamentally new feature.
+
+Next, I assess the impact on the current sprint. How much work have I already done that's affected? How much additional effort is needed? Does the change affect other team members' work? I quantify the impact: "Adding this new validation rule will require rewriting the form component and updating the API. That's approximately 2 additional days of work, which means the original sprint goal of completing the checkout flow will slip."
+
+I communicate the trade-offs to the PM and stakeholders transparently. I don't say "we can't do this"—I say "we can do this, but here's what we'll need to deprioritize to make room." This forces a prioritization conversation rather than simply adding work to the sprint. I present options: "We can absorb this change if we defer the address autocomplete feature to the next sprint, or we can complete the current sprint as planned and add this change to the next sprint."
+
+If the change is critical (e.g., a compliance requirement or a blocker for a major client), I accept it and adjust the sprint plan accordingly. I update the team, re-prioritize tasks, and communicate the revised expectations. If the change is important but not urgent, I add it to the backlog and include it in the next sprint planning.
+
+I also use mid-sprint changes as a learning opportunity for future planning. If requirements change frequently, it might indicate that the discovery process needs improvement—more thorough requirement gathering upfront, or more frequent check-ins with stakeholders during the sprint. I don't blame the PM; I look for systemic improvements that reduce the frequency and impact of changes.

@@ -1,0 +1,9 @@
+Trust in a development team is built through consistent behavior over time: doing what you say you'll do, being honest when things go wrong, and supporting your teammates. It's not built through grand gestures—it's built through daily actions.
+
+The foundation is reliability. When I commit to a task by Thursday, I deliver by Thursday. If I realize I'm going to miss a deadline, I communicate early—ideally as soon as I know, not the day before. Consistent follow-through on commitments, even small ones, builds a track record that teammates can count on. I've found that the single most trust-building behavior is saying "I'll do X" and then doing X, repeatedly.
+
+The second pillar is vulnerability and honesty. I openly admit when I don't know something, when I've made a mistake, or when I need help. In a code review, if I realize my earlier comment was wrong, I say so. If I broke the build, I own it immediately and fix it. This creates a culture where others feel safe to do the same. Teams where people hide mistakes or pretend to know everything are teams where trust is fragile.
+
+The third element is supporting others. I make time to help teammates with their problems, review their PRs promptly, and share knowledge generously. When someone is stuck, I don't just give them the answer—I help them think through it. When someone does good work, I acknowledge it publicly. When someone makes a mistake, I help them fix it rather than blame them. I also advocate for the team's interests—pushing back on unreasonable deadlines, advocating for time to address technical debt, and making sure credit is shared.
+
+Trust also requires consistency across situations. If you're supportive in good times but disappear in crunch time, trust erodes. If you're honest with peers but political with management, people notice. The goal is to be the same person in all contexts—someone who is competent, honest, and supportive, consistently.

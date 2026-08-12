@@ -1,0 +1,13 @@
+Selecting a new dependency is a decision with long-term maintenance implications, so I evaluate it rigorously before adding it to the project. My process checks five dimensions: necessity, quality, maintenance, security, and fit.
+
+First, I verify the necessity. Can I solve this problem with existing dependencies or a few lines of custom code? Every dependency adds complexity—more to learn, more to update, more potential for conflicts. If the problem is simple and well-defined, I often solve it with built-in language features or existing utilities rather than adding a new library. I follow the principle: don't add a dependency for something you can implement in 20 lines of code.
+
+Second, I evaluate quality. I check the GitHub repository: how many stars does it have? How many open issues? Are issues being responded to? Is the README comprehensive? Are there tests? I look at the source code for a few key files to assess code quality. I also check npm downloads or equivalent to gauge adoption—popular libraries have more eyes on them and more resources for support.
+
+Third, I assess maintenance. When was the last commit? How frequently are releases published? Is there a single maintainer or a team? A library that's been dormant for 6 months with open security issues is a red flag. I also check the changelog to see if breaking changes are handled responsibly—are they documented? Is there a migration guide?
+
+Fourth, I check for security vulnerabilities. I run `npm audit` or equivalent and check the library's issue tracker for security-related issues. I also check if the library has a security policy and how quickly past vulnerabilities were patched. For libraries that handle sensitive data (authentication, encryption, payment), I'm especially cautious.
+
+Finally, I evaluate fit with our project. Does the library's API align with our coding style? Does it work with our build system? Does it add significant bundle size? Does it have TypeScript types? I build a small proof of concept that tests the library against our specific use case before committing to it.
+
+If the evaluation passes all five checks, I add the dependency with documentation: why it was chosen, what alternatives were considered, and any known limitations. I also pin the version and set up automated dependency updates (like Dependabot) so we stay current with patches without accidentally pulling in breaking changes.

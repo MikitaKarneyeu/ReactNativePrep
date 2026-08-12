@@ -1,0 +1,11 @@
+When reviewing a PR, I focus on areas that have the highest impact on code quality, correctness, and maintainability. My review has a hierarchy: correctness first, then design, then readability.
+
+First, I check correctness. Does the code do what the ticket or PR description says? Are edge cases handled—null values, empty collections, concurrent access, network failures? Are there off-by-one errors, missing null checks, or unhandled exceptions? I trace through the logic mentally, especially for complex conditionals or state changes. I also check for security issues: SQL injection, XSS, improper input validation, or hardcoded secrets.
+
+Next, I evaluate the design. Is the code structured in a way that's maintainable and extensible? Are responsibilities clearly separated? Does it follow the existing patterns in the codebase, or if it diverges, is there a good reason? I look for code that's doing too much in one function, abstractions that are either too rigid or too flexible, and coupling that will make future changes difficult. I also consider whether the code is testable—functions with hidden dependencies or side effects are harder to test and maintain.
+
+Then I look at readability and maintainability. Are variable and function names descriptive? Is the code organized logically? Are there comments where the "why" isn't obvious from the code? Is the code consistent with the team's style guide? I don't nitpick formatting if there's an automated linter, but I do call out naming that obscures intent.
+
+I also check the tests. Do the tests cover the happy path and the error paths? Are the test names descriptive? Do the tests actually verify behavior, or are they testing implementation details? I'm suspicious of tests that pass regardless of the code's behavior—these give false confidence.
+
+Finally, I consider the PR as a whole. Is it focused on a single change, or does it mix unrelated changes? Is the size reasonable? Large PRs are harder to review effectively, so if it's very large, I suggest breaking it up. I leave comments that explain my reasoning, not just my opinion, and I distinguish between must-fix items and suggestions.

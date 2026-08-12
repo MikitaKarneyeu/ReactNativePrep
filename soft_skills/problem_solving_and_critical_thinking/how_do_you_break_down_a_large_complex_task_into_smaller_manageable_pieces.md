@@ -1,0 +1,9 @@
+Breaking down large tasks is one of the most important skills for a developer. My approach uses three principles: decompose by user value, identify dependencies, and size for completion within a day or two.
+
+I start by understanding the end goal and working backwards. For a feature like "add user authentication," I ask: what does the user need to be able to do? They need to sign up, log in, stay logged in, and log out. Each of these becomes a discrete piece of work. Then I break each piece further: "log in" becomes "build login API endpoint," "build login form UI," "handle error states," and "write integration tests."
+
+Next, I identify dependencies and sequence the work accordingly. Some tasks are blocking—others can't start until they're done. I map these out, often using a simple list or diagram. For example, the login UI depends on the API endpoint existing, so I build the API first. But I can build the UI with a mock API response in parallel if I know the contract. This lets me parallelize work and unblock teammates.
+
+I also size tasks so each one has a clear definition of done and can be completed in a reasonable timeframe—ideally a few hours to a day. If a task feels like it will take more than two days, I break it down further. Large tasks are demoralizing because they feel endless; small tasks provide momentum and make progress visible.
+
+Finally, I write the breakdown as a set of tasks in our project management tool, each with a clear description and acceptance criteria. I review the breakdown with the team before starting—others often see dependencies or edge cases I missed. This practice also helps with estimation: small, well-defined tasks are much easier to estimate accurately than large, ambiguous ones.

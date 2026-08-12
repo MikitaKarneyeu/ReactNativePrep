@@ -1,0 +1,11 @@
+Technical decisions that affect the whole team require a different process than individual technical choices. These decisions—choosing a framework, adopting a pattern, setting coding standards—need broader input and stronger buy-in because everyone will live with the consequences.
+
+I start by identifying who is affected and who has relevant expertise. A decision about the testing framework affects every developer. A decision about the deployment pipeline affects developers and DevOps. I make sure the right people are involved—not everyone needs to participate in every decision, but everyone who will be significantly affected should have a voice.
+
+I use an RFC (Request for Comments) process for significant decisions. I write a document that covers: the problem we're solving, the options considered (with pros and cons), my recommendation, and the expected impact. I share it with the team and give people time to read and respond—typically 2-3 days for a significant decision. This asynchronous process gives everyone a chance to think carefully and contribute, rather than making decisions in a meeting where the loudest voices dominate.
+
+I facilitate discussion rather than dictating. When the team reviews the RFC, I encourage questions, challenges, and alternative suggestions. I've changed my recommendation based on team input many times—someone might have experience with the proposed approach that reveals issues I hadn't considered. The goal is to arrive at the best decision, not to defend my initial proposal.
+
+Once a decision is made, I document it in an ADR and communicate it clearly to the team. I explain the reasoning so that everyone understands why the decision was made, even if they advocated for a different approach. I also define how the decision will be evaluated—what signals would indicate that the decision needs to be revisited. This creates a feedback loop that catches bad decisions early.
+
+I follow through on the decision with full commitment. Once the team has decided, I implement it consistently and don't undermine it through passive resistance or by working around it. If new information emerges that challenges the decision, I raise it through the proper process rather than reverting to my preferred approach unilaterally.

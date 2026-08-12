@@ -1,0 +1,9 @@
+One of the most challenging problems I solved was a memory leak in a Node.js microservice that caused the application to crash every 48-72 hours in production. The service handled image processing for a social media platform, and the crashes were happening during peak traffic, causing user-facing errors.
+
+My approach followed a systematic debugging process. First, I reproduced the issue in a staging environment by running load tests that mimicked production traffic patterns. I confirmed the memory leak existed by monitoring heap usage over time—it grew steadily without being garbage collected. I then used the Node.js heap snapshot tool to capture memory state at intervals and compared them to identify objects that were accumulating.
+
+The investigation revealed that we were storing processed image metadata in an in-memory cache without implementing an eviction strategy. Each image upload added an entry, and over time these entries accumulated indefinitely. Additionally, event listeners were being attached to streams without being properly cleaned up after processing completed.
+
+I implemented a Least Recently Used (LRU) cache with a maximum size and TTL, and fixed the event listener cleanup by ensuring all listeners were removed in the stream's `end` and `error` handlers. I also added memory monitoring to our observability stack so we could track heap usage over time and set alerts for abnormal growth patterns.
+
+The fix reduced memory consumption by 80% and eliminated the crashes entirely. More importantly, I wrote up a post-mortem that documented the root cause and the debugging steps, which became a reference for the team. I also added a code review checklist item: "Are all event listeners properly cleaned up?" and "Does any new caching have a defined eviction policy?" The experience reinforced that systematic debugging—reproduce, isolate, fix, prevent—is always faster than guessing.

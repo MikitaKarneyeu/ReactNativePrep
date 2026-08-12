@@ -1,0 +1,9 @@
+Setting boundaries between work and personal life when working remotely is essential for long-term sustainability. Without physical separation, work can easily bleed into personal time, leading to burnout. My approach creates boundaries through routine, environment, and communication.
+
+I maintain a consistent schedule. I start work at the same time each day and—critically—stop at the same time. When my workday ends, I close my laptop, leave my workspace, and do something that signals the transition: go for a walk, exercise, or make dinner. This ritual creates a psychological boundary between work mode and personal mode. I don't check Slack or email after hours unless there's a genuine on-call emergency.
+
+I have a dedicated workspace that I don't use for leisure. If you don't have a separate room, even a specific desk or corner works. The key is that when I'm in that space, I'm working, and when I leave that space, I'm not. Working from the couch or bed blurs the boundary and makes it harder to relax in spaces that should be restful.
+
+I communicate my boundaries to my team. My Slack status shows my working hours. I set my calendar to reflect my availability. If someone messages me outside my hours, I don't respond until the next working day—this trains both myself and others to respect the boundary. If there's a genuine emergency, my team knows to call me, which they rarely do.
+
+I also protect my personal time during the workday. I take a real lunch break away from my desk. I schedule personal appointments without guilt—just as I would if I worked in an office. I don't try to be available 100% of the time; I aim for high-quality, focused work during my working hours and genuine rest outside of them. Remote work is a marathon, not a sprint, and sustainable boundaries are what keep you productive over the long term.

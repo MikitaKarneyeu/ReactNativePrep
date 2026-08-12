@@ -1,0 +1,9 @@
+When evaluating multiple solutions, I use a structured comparison framework that considers technical merit, practical constraints, and long-term implications. I avoid the trap of choosing the first solution that comes to mind or the one that's most intellectually interesting.
+
+First, I define the evaluation criteria upfront. These typically include: development effort, performance impact, maintainability, scalability, team familiarity, and alignment with existing architecture. I weight these criteria based on the specific context—a prototype values speed of development, while a system handling financial transactions values correctness and auditability.
+
+Next, I create a simple comparison matrix. For each solution, I rate it against each criterion. For example, when choosing between a relational database, a document store, and a graph database for a new feature, I'd evaluate each on query performance for our use case, operational complexity (do we already run this in production?), team expertise, and cost. This makes trade-offs explicit rather than relying on gut feeling.
+
+I also consider the "do nothing" option and the "buy vs. build" dimension. Sometimes the best solution is to use an existing library or service rather than building anything custom. I check if there are well-maintained open-source solutions or SaaS products that solve the problem, and evaluate the trade-off between control and development time.
+
+Finally, I discuss the top two or three options with the team before deciding. Different people bring different perspectives—a developer who's been burned by a technology choice before might see risks I'd miss. I present the options with pros and cons, make a recommendation, and invite challenges. The goal is to make a well-reasoned decision that the team can buy into, not to make the "perfect" choice in isolation. Documenting the reasoning in an ADR ensures the decision is traceable and can be revisited if circumstances change.

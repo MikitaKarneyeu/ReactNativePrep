@@ -1,0 +1,11 @@
+Estimation is inherently uncertain, but I use a structured approach that makes it more accurate over time. My method combines decomposition, historical data, and explicit uncertainty.
+
+First, I break the task into smaller pieces. A task like "build user profile page" is too large to estimate accurately. I decompose it: create the API endpoint, build the profile form component, implement image upload, add validation, write tests, handle edge cases (what if the user has no profile?). I estimate each piece independently—smaller tasks are easier to estimate because there are fewer unknowns.
+
+For each sub-task, I estimate in three values: optimistic (everything goes perfectly), most likely (normal conditions), and pessimistic (things go wrong). I use a weighted average: (optimistic + 4 * most likely + pessimistic) / 6. This is a simplified PERT estimation that accounts for uncertainty without being overly complex. If my optimistic is 2 hours, most likely is 4 hours, and pessimistic is 12 hours (because I might hit an API issue), my estimate is 5 hours—not 4.
+
+I also identify and call out the assumptions and risks in my estimate. "This assumes the API contract is stable. If the backend team changes the response format, add 2 days." This makes the estimate a living document rather than a promise. I share these assumptions with the team so they can flag any that are wrong.
+
+I calibrate my estimates over time by tracking actuals versus estimates. I keep a simple log: what I estimated, what it actually took, and why the estimate was off (if it was). Over months, I developed a personal velocity multiplier—I know that my estimates tend to be 20% optimistic for complex tasks, so I add a buffer. I also use reference-based estimation: "This task is similar to the search feature I built last sprint, which took 3 days. I'll estimate 3 days for this."
+
+The most important thing is to communicate uncertainty honestly. A range ("3-5 days") is more useful than a single number ("4 days") because it signals that the estimate has variability. And I re-estimate as I learn more—if I discover the task is more complex than expected, I update the estimate immediately rather than silently slipping the deadline.

@@ -1,0 +1,11 @@
+Gathering requirements is an iterative conversation, not a one-time handoff. My approach uses structured questions, prototypes, and continuous validation to ensure we're building the right thing.
+
+I start by understanding the business context. Before diving into specific features, I ask: What problem are we solving? For whom? How will we measure success? What happens if we don't build this? Understanding the "why" behind a requirement helps me make better technical decisions and sometimes reveals that the proposed solution isn't the best way to achieve the goal.
+
+Then I dig into the specifics using user stories and acceptance criteria. I ask the PM to describe the feature from the user's perspective: "As a [user type], I want to [action] so that [benefit]." For each story, I ask for acceptance criteria: What does the happy path look like? What are the error states? What are the edge cases? What should happen when the system is slow or unavailable? I've found that many requirements become much clearer when you force specificity on edge cases.
+
+I use visual aids to validate understanding. For UI features, I ask for wireframes or mockups. For API features, I draft the request/response contract and review it with the PM. For data features, I create sample data scenarios. These artifacts serve as a shared reference point that prevents the "I thought we agreed on X" problem.
+
+I also prototype early and often. Instead of spending weeks building a feature based solely on a written spec, I build a minimal version quickly and show it to the PM and stakeholders. Their feedback on the prototype often reveals misunderstandings or missing requirements that would have been expensive to fix later. This iterative approach—build a little, get feedback, adjust—is far more effective than trying to get perfect requirements upfront.
+
+I document the finalized requirements in a shared space (Notion, Confluence, or the ticket itself) and get explicit sign-off from the PM before starting development. This doesn't mean the requirements won't change—it means we have a shared baseline to refer back to when they do.

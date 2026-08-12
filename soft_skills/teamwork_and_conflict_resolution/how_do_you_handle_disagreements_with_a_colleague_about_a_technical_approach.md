@@ -1,0 +1,9 @@
+Technical disagreements are healthy and often lead to better solutions, provided they're handled constructively. My approach is to separate the idea from the person, focus on shared goals, and use evidence over opinion.
+
+First, I make sure I genuinely understand my colleague's position. I ask them to walk me through their reasoning: "Can you help me understand why you prefer this approach?" I listen without interrupting and repeat back what I heard to confirm understanding. Many disagreements dissolve when you realize you're actually arguing about different things or have different assumptions about the requirements.
+
+Next, I frame my perspective in terms of the shared goal. Instead of "I don't like using Redux for this," I say "I'm concerned that Redux will add complexity for what is essentially local component state. My goal is to keep the codebase simple for the team. What do you think?" This invites collaboration rather than debate. I also acknowledge the strengths of their approach—no solution is all bad.
+
+If we still disagree, I propose moving the discussion to evidence. Can we build a small proof-of-concept for each approach and compare? Can we find case studies or documentation that supports one side? Can we define evaluation criteria upfront (performance, maintainability, development time) and measure both approaches against them? This shifts the conversation from "I think" to "the evidence shows."
+
+If after evidence-based discussion we still can't agree, I suggest involving a third party—a tech lead, architect, or another experienced developer—to break the tie. I also suggest a time-boxed decision: "Let's go with your approach for this sprint, and if we hit the issues I'm concerned about, we'll revisit." The important thing is that once a decision is made, I commit to it fully regardless of which way it went. Carrying resentment or doing half-hearted work because you disagreed is destructive to the team.

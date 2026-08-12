@@ -1,0 +1,9 @@
+Visibility in a remote team isn't about showing off—it's about ensuring that your contributions are understood and that the team has the information it needs to function effectively. My approach makes work visible through documentation, updates, and proactive communication.
+
+I make my work visible through our project management tool. Every task I work on has a ticket with up-to-date status, comments about progress, and links to relevant code or documentation. Anyone on the team can check the board at any time and see exactly where things stand. I update tickets daily—when I start a task, when I hit a milestone, when I encounter a blocker, and when I complete it. This asynchronous visibility means no one has to ask me "where are you on this?" because the answer is always available.
+
+I provide regular written updates. In daily standups, I share what I completed, what I'm working on, and any blockers—kept brief but informative. In weekly updates, I summarize progress against sprint goals, highlight any risks or changes, and preview upcoming work. These updates go in a shared channel or document so the entire team (and stakeholders) can see them.
+
+I demo my work whenever possible. When I complete a feature or significant improvement, I share a screenshot, screen recording, or live demo in the team channel. This makes my work tangible—stakeholders can see the result, not just read about it in a ticket. It also invites feedback early, which is cheaper to incorporate than late-stage changes.
+
+I also make my thinking visible. When I'm making a technical decision, I write it up and share it. When I encounter and solve a tricky problem, I document the solution. When I learn something useful, I share it with the team. This visibility isn't about credit—it's about contributing to the team's collective knowledge and making it easy for others to build on my work.

@@ -1,0 +1,11 @@
+Conflicting priorities from different stakeholders are common, especially in organizations where multiple teams or leaders have input into the product roadmap. My approach is to surface the conflict transparently, facilitate a decision, and ensure the decision is documented.
+
+First, I make sure I understand each stakeholder's priority and the reasoning behind it. A sales leader might prioritize a feature that closes a deal, while a support leader might prioritize fixing a bug that generates tickets. Both are valid from their perspective. I ask each stakeholder: "What's the business impact of this? What's the deadline? What happens if this is delayed by a sprint?"
+
+Next, I bring the conflict to the surface rather than trying to resolve it myself. If two stakeholders have given me conflicting priorities, I don't play favorites or try to guess which one is more important—I facilitate a discussion. I might say to my manager: "I have two requests that conflict—Sales needs feature X by Friday, and Support needs bug Y fixed this week. I can only do one. Can we align on which is higher priority?"
+
+If the stakeholders can't align, I escalate to someone with the authority to make the call—typically a product director or VP. I present the situation factually: here are the two requests, here's the effort for each, here are the deadlines, and here's the impact of delaying each. I let the decision-maker make the call rather than making it myself.
+
+Once a decision is made, I document it and communicate it to all parties. "Based on our discussion, we're prioritizing the bug fix this week, and feature X will be scheduled for next sprint. The sales team has been notified and is adjusting their timeline." This prevents the deprioritized stakeholder from feeling blindsided and creates a record that can be referenced if the same conflict arises again.
+
+I also look for systemic solutions. If conflicting priorities are a recurring problem, I advocate for a clearer prioritization framework—maybe a quarterly planning process where priorities are set upfront, or a product council that resolves conflicts before they reach developers. Resolving the same type of conflict repeatedly is a sign that the process needs improvement.

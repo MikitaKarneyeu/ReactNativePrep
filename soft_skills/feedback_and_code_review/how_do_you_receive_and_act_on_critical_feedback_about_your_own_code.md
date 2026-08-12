@@ -1,0 +1,9 @@
+Receiving critical feedback on my code is something I've learned to value, even when it stings initially. My approach is to separate my ego from the code, understand the feedback fully, and act on it constructively.
+
+My first reaction, if the feedback feels harsh, is to pause before responding. I've learned that the initial defensive feeling—"but I thought about this carefully!"—is natural but unhelpful. I read the feedback completely, step away if needed, and come back with fresh eyes. Often, what felt like criticism in the moment turns out to be valid and useful once I've processed it.
+
+I approach the feedback with genuine curiosity. If a reviewer suggests a different approach, I ask myself: why might they be right? What am I missing? I ask clarifying questions: "Can you help me understand why you prefer this pattern over what I used?" Sometimes the feedback reveals a gap in my knowledge—maybe there's a better algorithm, a framework feature I wasn't aware of, or a team convention I missed. These are learning opportunities, not personal attacks.
+
+When the feedback is valid, I act on it promptly and completely. I don't make grudging, minimal changes—I fully address the concern and look for related improvements. If the reviewer pointed out that my error handling is incomplete, I audit the entire function, not just the specific line they commented on. I also thank the reviewer for their time and insight. Genuine appreciation encourages thorough reviews in the future.
+
+When I disagree with feedback, I respectfully explain my reasoning. "I chose this approach because of X constraint—does that change your recommendation?" Sometimes the reviewer concedes; sometimes they provide additional context that changes my mind. Either way, the discussion improves the code and our shared understanding. The worst thing I can do is silently ignore feedback or make token changes—this wastes the reviewer's time and misses the opportunity to improve.

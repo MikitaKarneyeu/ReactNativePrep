@@ -1,0 +1,9 @@
+Working remotely requires intentional structure to maintain productivity and focus. Without the physical cues of an office—commute, desk, colleagues working nearby—you have to create your own rhythms and boundaries.
+
+I start with a consistent routine. I wake up at the same time every day, get dressed (not necessarily office-formal, but not pajamas), and have a dedicated workspace that's separate from where I relax. This physical separation signals to my brain that it's time to work. I begin each day by reviewing my task list and identifying the top 2-3 priorities—this gives me direction before I get pulled into reactive mode by Slack messages and emails.
+
+I protect my focus time ruthlessly. I block 2-3 hour chunks on my calendar for deep work and mute Slack notifications during those periods. I use the Pomodoro technique—25 minutes of focused work followed by a 5-minute break—during tasks that require concentration. I batch my email and Slack checking to 2-3 times per day rather than responding to every notification in real-time. Context switching is even more expensive when you're remote because there's no physical transition to help your brain switch modes.
+
+I create accountability through structure. At the start of each week, I write down my goals. At the end of each day, I spend 5 minutes noting what I accomplished and what's next. This helps me stay on track and provides visibility for standups and weekly updates. I also use body-doubling—working on video call (muted) with a colleague—when I need extra focus on a challenging task.
+
+I invest in my physical setup. A good chair, a proper monitor, reliable internet, and good lighting aren't luxuries—they're productivity tools. I also take regular breaks to move, stretch, and step outside. Remote work can be sedentary, and physical activity directly impacts mental clarity. The key to remote productivity is treating it as a skill to develop, not just an office minus the commute.

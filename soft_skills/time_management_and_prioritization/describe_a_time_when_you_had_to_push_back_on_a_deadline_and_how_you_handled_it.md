@@ -1,0 +1,11 @@
+On a previous project, we were building a payment integration with a hard launch date tied to a marketing campaign. Two weeks before the deadline, it became clear we wouldn't make it—a third-party API we depended on had undocumented rate limits that we discovered during load testing, and fixing the issue properly would require redesigning our request queuing system.
+
+My first instinct was to work nights and weekends, but I knew that would lead to burnout and potentially introduce bugs in a system that handled money. Instead, I prepared a clear case and had an honest conversation with the product manager and engineering manager.
+
+I came to the meeting with specific data: "We've completed 85% of the integration. The remaining 15% requires redesigning our API request queue to handle rate limits gracefully. Based on our current velocity, we need an additional 10 business days. Here are the risks of rushing: payment failures, double charges, or rate limit violations that could get our API key revoked."
+
+I also presented options rather than just saying "we need more time." Option A: delay the launch by two weeks and deliver a robust solution. Option B: launch with a subset of payment methods that don't have the rate limit issue (covering 80% of transactions) and add the remaining methods in a follow-up release. Option C: launch with aggressive caching that reduces API calls but introduces a small risk of stale data.
+
+The PM chose Option B—it met the campaign deadline for most customers while giving us time to build the proper solution. We launched on time with credit card and PayPal support, and added the remaining payment methods two weeks later. The campaign was successful, and we avoided the nightmare scenario of payment failures during a high-traffic launch.
+
+The key lessons were: don't wait until the last minute to flag delays—communicate as soon as you see the risk; come with options, not just problems; and be honest about risks rather than hoping you'll figure it out in time. Stakeholders respect transparency far more than heroic but unreliable commitments.

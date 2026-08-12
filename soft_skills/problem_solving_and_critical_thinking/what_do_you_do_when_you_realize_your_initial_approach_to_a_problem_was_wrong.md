@@ -1,0 +1,9 @@
+Recognizing that your approach is wrong is a strength, not a failure. The key is to recognize it early, communicate clearly, and pivot efficiently. My process is: acknowledge, assess, communicate, and redirect.
+
+First, I acknowledge the mistake to myself without ego. I've built features where halfway through I realized the architecture wouldn't scale, or the API design didn't match the actual data patterns. The temptation is to push forward and make it work through increasingly complex workarounds. I resist that—sunk cost fallacy has no place in engineering.
+
+Next, I assess the impact. How much work have I done? How much of it is salvageable? What's the cost of continuing versus starting over? Sometimes a wrong approach still yields useful code, tests, or insights. Sometimes you need to throw it all away. I make this assessment objectively.
+
+Then I communicate to the team promptly and transparently. I don't hide the mistake or present a revision as "the plan all along." I say something like: "I started implementing X approach, but after getting into the details, I've realized it won't handle our edge cases well. Here's what I found, and here's what I think we should do instead." I come with the alternative, not just the problem. This builds trust because the team knows I'll be honest about problems rather than letting them fester.
+
+Finally, I redirect my effort efficiently. I extract what I can from the failed approach—tests, learnings, partial implementations—and apply them to the new direction. I also do a brief retrospective: why did the initial approach seem right? What information was I missing? This helps me make better decisions in the future. The most important thing is speed of recognition—the sooner you realize you're on the wrong path, the less time you waste.

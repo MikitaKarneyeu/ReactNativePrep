@@ -1,0 +1,9 @@
+We were building a real-time notification system, and I had to choose between using WebSockets or Server-Sent Events (SSE) without having complete information about the expected traffic patterns, client environments, or long-term scalability requirements. The deadline was tight, and we didn't have time for a full proof-of-concept with both technologies.
+
+I approached this by identifying what I did know: we needed server-to-client push (not bidirectional), our clients were primarily web browsers, and we expected moderate traffic initially but potential spikes during product launches. I also identified the key unknowns: would we need bidirectional communication in the future? How would different corporate firewalls handle persistent connections?
+
+I used a decision matrix to evaluate the options against known criteria. WebSockets offered bidirectional communication and broad support but had higher complexity and potential firewall issues. SSE was simpler, had automatic reconnection, and worked over standard HTTP, but was unidirectional and had a connection limit per domain in HTTP/1.1.
+
+Given the constraints, I chose SSE with a documented plan to revisit if requirements changed. I made the decision reversible by abstracting the notification transport behind an interface, so switching to WebSockets later wouldn't require rewriting the entire system. I documented the decision, the trade-offs accepted, and the conditions under which we'd reconsider.
+
+The SSE approach worked well for our needs. Six months later, when we did need bidirectional communication for a chat feature, we added WebSockets for that specific use case while keeping SSE for notifications. The key lesson was that when you can't get complete information, optimize for reversibility—make the decision easy to undo if it turns out to be wrong.

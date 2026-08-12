@@ -1,0 +1,9 @@
+Before asking for help, I go through a checklist to make sure I've done my due diligence and that I'm asking an effective question. This respects my colleagues' time and often leads to solving the problem on my own.
+
+First, I spend at least 15-20 minutes investigating independently. I re-read the error message carefully—many times the answer is in the error itself. I check the relevant documentation, read the source code of the function or module involved, and search for the error message or symptom online. I also check if the issue is reproducible or intermittent, and whether it's specific to my environment.
+
+Second, I try to isolate the problem. I create a minimal reproduction case—strip away all unrelated code until I have the smallest possible example that demonstrates the bug. This process often reveals the cause, and if it doesn't, it gives the person I'm asking a much clearer picture of the problem.
+
+Third, I prepare to ask effectively. I write down: what I'm trying to do, what I expected to happen, what actually happened, what I've already tried, and what I think might be going on. I include relevant error messages, code snippets, and environment details. I follow the "stack overflow question" format—provide enough context that someone can help without having to ask me a dozen clarifying questions.
+
+When I do ask, I'm specific. Instead of "this doesn't work," I say "I'm calling `getUserById(123)` and getting a 404, but I can see the user exists in the database. I've checked the route definition, the controller, and the SQL query, and they all look correct. Here's the relevant code—am I missing something?" This approach gets faster, more useful answers and demonstrates that I've put in effort, which builds trust with colleagues.

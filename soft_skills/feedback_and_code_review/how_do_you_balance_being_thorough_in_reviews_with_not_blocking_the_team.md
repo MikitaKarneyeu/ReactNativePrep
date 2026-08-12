@@ -1,0 +1,9 @@
+Balancing thoroughness with speed in code reviews is about prioritizing impact. Not every line of code deserves the same level of scrutiny, and being a bottleneck is its own form of quality problem.
+
+I use a tiered review approach based on risk. High-risk code—authentication, payment processing, data migration, public API contracts—gets a deep review. I trace through logic carefully, consider edge cases, and verify error handling. Low-risk code—UI tweaks, copy changes, minor refactors—gets a faster review focused on correctness and readability. This lets me give thorough attention where it matters while not blocking low-risk changes.
+
+I prioritize reviewing PRs from teammates who are blocked. If someone is waiting on my review to continue their work, I prioritize their PR over my own tasks. I also try to review PRs the same day they're requested—waiting until the next day adds a full day of latency to the development cycle. If I can't review immediately, I let the author know when I'll get to it so they can plan accordingly.
+
+I limit my review comments to the most impactful issues. If a PR has ten minor style issues and one significant bug, I focus on the bug and note the style issues with a single comment like "A few minor style nits—see inline comments" rather than leaving ten separate comments that create the impression of a problematic PR. I also distinguish between blocking feedback (must fix before merge) and non-blocking feedback (nice to have, can be done in a follow-up PR).
+
+I also advocate for automated tooling to reduce the burden on human reviewers. Linters catch formatting issues, type checkers catch type errors, and automated tests catch regressions. The more issues that can be caught automatically, the more time human reviewers can spend on the things that matter: design, logic, and maintainability. My goal is for code reviews to be a conversation about the code, not a checklist of formatting rules.

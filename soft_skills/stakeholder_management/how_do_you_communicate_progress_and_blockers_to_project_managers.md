@@ -1,0 +1,9 @@
+Effective communication with project managers is about being proactive, clear, and solution-oriented. My approach focuses on making the PM's job easier by providing the information they need in the format they need it.
+
+I provide regular, structured updates. In daily standups, I share what I completed, what I'm working on, and any blockers—kept brief and focused on information the team needs. For the PM specifically, I provide weekly written updates that include: progress against sprint goals, any risks or blockers, estimated completion dates for key deliverables, and any scope or timeline changes. I keep these updates factual and concise—the PM doesn't need a narrative of my day, they need to know if we're on track.
+
+When I encounter a blocker, I communicate it immediately and come with a proposed solution. Instead of "I'm blocked on the API integration," I say "I'm blocked on the API integration because the endpoint returns a different response format than documented. I've contacted the backend team and they'll update it by tomorrow. In the meantime, I'm working on the frontend components that don't depend on the API." This shows the PM that I'm managing the blocker, not just reporting it.
+
+I'm honest about risks and timelines. If I think a deadline is at risk, I say so early—ideally as soon as I see the risk, not when the deadline has passed. I provide a revised estimate and explain the reason. PMs can handle bad news; what they can't handle is surprises. Early warnings give them options—adjust scope, bring in help, or manage stakeholder expectations.
+
+I also tailor my communication to the PM's preferences. Some PMs want detailed written updates; others prefer a quick Slack message. Some want to be involved in technical decisions; others just want to know the outcome. I ask what they prefer and adapt accordingly. The goal is a communication rhythm that keeps the PM informed without creating unnecessary overhead for either of us.
