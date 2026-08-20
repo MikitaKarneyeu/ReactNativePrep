@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
+    .form-group { margin-bottom: 12px; }
+    label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 5px; }
+    select, input, textarea { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    textarea { height: 80px; resize: vertical; }
+    .btn { background: #4285f4; color: white; padding: 10px; width: 100%; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+    #status { margin-top: 10px; font-size: 13px; text-align: center; }
+  </style>
+</head>
+<body>
+  <form id="mainForm">
+    <div class="form-group">
+      <label>Assessment Sheet:</label>
+      <select id="sheetName" required onchange="onSheetChange()"><option value="" disabled selected>Loading...</option></select>
+    </div>
+    
+    <div class="form-group">
+      <label>Filter by Topic (Optional):</label>
+      <select id="topicFilter" onchange="renderQuestions()">
+        <option value="" disabled selected>-- Choose sheet first --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Select Question:</label>
+      <select id="qSelect" required onchange="onQuestionChange()">
+        <option value="" disabled selected>-- Choose sheet first --</option>
+      </select>
+    </div>
+
+    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
+
+    <div class="form-group">
+      <label>Edit Topic:</label>
+      <input type="text" id="topic" required>
+    </div>
+    <div class="form-group">
+      <label>Edit Question Text:</label>
+      <textarea id="qText" required></textarea>
+    </div>
+    <button type="submit" class="btn" id="submitBtn">Save Changes</button>
+    <div id="status"></div>
+  </form>
+
+  <script>
+    var allQuestions = [];
+    document.addEventListener('DOMContentLoaded', function() {
+      google.script.run.withSuccessHandler(function(qs) { allQuestions = qs || []; }).getQuestionsList();
+      google.script.run.withSuccessHandler(function(sheets) {
+        var sel = document.getElementById('sheetName'); sel.innerHTML = '<option value="" disabled selected>-- Select Sheet --</option>';
+        sheets.forEach(function(sh) { var opt = document.createElement('option'); opt.value = sh; opt.text = sh; sel.appendChild(opt); });
+      }).getAssessmentSheets();
+    });
+
+    function onSheetChange() {
+      var sh = document.getElementById('sheetName').value;
+      var tFilt = document.getElementById('topicFilter');
+      
+      var uniqueTopics = [];
+      allQuestions.forEach(function(q) {
+        if (q.sheetName === sh && uniqueTopics.indexOf(q.topic) === -1) uniqueTopics.push(q.topic);
+      });
+      
+      tFilt.innerHTML = '<option value="">-- All Topics --</option>';
+      uniqueTopics.forEach(function(t) {
+        var opt = document.createElement('option'); opt.value = t; opt.text = t; tFilt.appendChild(opt);
+      });
+      
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      var sh = document.getElementById('sheetName').value;
+      var top = document.getElementById('topicFilter').value;
+      var qSel = document.getElementById('qSelect');
+      
+      qSel.innerHTML = '<option value="" disabled selected>-- Select Question --</option>';
+      document.getElementById('topic').value = '';
+      document.getElementById('qText').value = '';
+      
+      allQuestions.forEach(function(q) {
+        if (q.sheetName === sh && (top === "" || q.topic === top)) {
+          var opt = document.createElement('option');
+          opt.value = q.row; 
+          opt.text = '[' + q.topic + '] ' + (q.question.length > 50 ? q.question.substring(0, 50) + '...' : q.question);
+          qSel.appendChild(opt);
+        }
+      });
+    }
+
+    function onQuestionChange() {
+      var row = document.getElementById('qSelect').value;
+      var sh = document.getElementById('sheetName').value;
+      var q = allQuestions.find(function(item) { return item.row == row && item.sheetName === sh; });
+      if (q) {
+        document.getElementById('topic').value = q.topic;
+        document.getElementById('qText').value = q.question;
+      }
+    }
+
+    document.getElementById('mainForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('submitBtn'), status = document.getElementById('status');
+      btn.disabled = true; status.textContent = 'Saving...';
+      
+      google.script.run.withSuccessHandler(function() {
+        status.style.color = '#0f9d58'; status.textContent = 'Saved!';
+        setTimeout(function(){ google.script.host.close(); }, 1500);
+      }).withFailureHandler(function(err) {
+        status.style.color = 'red'; status.textContent = err.message; btn.disabled = false;
+      }).editQuestion(document.getElementById('sheetName').value, parseInt(document.getElementById('qSelect').value), document.getElementById('topic').value, document.getElementById('qText').value);
+    });
+  </script>
+</body>
+</html>

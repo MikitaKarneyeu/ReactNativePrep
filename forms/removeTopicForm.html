@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; padding: 16px; margin: 0; color: #333; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 13px; }
+    select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
+    select:focus { border-color: #4285f4; outline: none; }
+    .radio-group { margin-bottom: 12px; }
+    .radio-group label { font-weight: normal; cursor: pointer; display: block; margin-bottom: 8px; font-size: 13px; }
+    .radio-group input[type="radio"] { margin-right: 8px; }
+    .reassign-group { margin-top: 12px; padding: 12px; background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 6px; display: none; }
+    .reassign-group.visible { display: block; }
+    .btn { padding: 10px 20px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: bold; margin-right: 8px; }
+    .btn-danger { background-color: #ea4335; color: white; }
+    .btn-danger:hover { background-color: #d33426; }
+    .btn-danger:disabled { background-color: #f5a0a0; cursor: not-allowed; }
+    .btn-secondary { background-color: #f1f3f4; color: #333; }
+    .btn-secondary:hover { background-color: #e2e4e6; }
+    .buttons { margin-top: 20px; }
+    .message { padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; display: none; }
+    .message.success { background-color: #e6f4ea; color: #137333; border: 1px solid #ceead6; display: block; }
+    .message.error { background-color: #fce8e6; color: #c5221f; border: 1px solid #f5c6cb; display: block; }
+    .loading { display: none; color: #666; font-style: italic; margin-top: 8px; font-size: 13px; }
+    .warning { background-color: #fef7e0; color: #9a6700; border: 1px solid #fde293; padding: 10px; border-radius: 6px; margin-bottom: 12px; font-size: 13px; display: none; }
+    .warning.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div id="msg" class="message"></div>
+  <div id="warning" class="warning"></div>
+
+  <div id="formContent">
+    <div class="form-group">
+      <label for="sheetName">Assessment Sheet:</label>
+      <select id="sheetName" onchange="onSheetChange()">
+        <option value="" disabled selected>-- Loading sheets... --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="topicSelect">Topic to Remove:</label>
+      <select id="topicSelect" onchange="onTopicChange()" disabled>
+        <option value="">-- Choose sheet first --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Action:</label>
+      <div class="radio-group">
+        <label>
+          <input type="radio" name="action" value="delete" checked onchange="onActionChange()">
+          Delete all questions under this topic
+        </label>
+        <label>
+          <input type="radio" name="action" value="reassign" onchange="onActionChange()">
+          Reassign questions to another topic
+        </label>
+      </div>
+
+      <div id="reassignGroup" class="reassign-group">
+        <label for="reassignSelect">Reassign To:</label>
+        <select id="reassignSelect">
+          <option value="">-- Select topic --</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-danger" id="submitBtn" onclick="submitForm()">Remove Topic</button>
+      <button class="btn btn-secondary" onclick="google.script.host.close()">Cancel</button>
+    </div>
+
+    <div id="loading" class="loading">Processing request...</div>
+  </div>
+
+  <script>
+    var currentSheetTopics = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      // Загружаем список рабочих листов
+      google.script.run
+        .withSuccessHandler(function(sheets) {
+          var select = document.getElementById('sheetName');
+          select.innerHTML = '<option value="" disabled selected>-- Select Sheet --</option>';
+          sheets.forEach(function(sh) {
+            var opt = document.createElement('option');
+            opt.value = sh; opt.textContent = sh;
+            select.appendChild(opt);
+          });
+        })
+        .withFailureHandler(function(err) {
+          showMessage('Failed to load sheets: ' + err.message, 'error');
+        })
+        .getAssessmentSheets();
+    });
+
+    // Когда пользователь выбирает лист
+    // Когда пользователь выбирает лист в выпадающем списке
+function onSheetChange() {
+  var selectedSheet = document.getElementById('sheetName').value;
+  var topicSelect = document.getElementById('topicSelect');
+  
+  topicSelect.disabled = true;
+  topicSelect.innerHTML = '<option value="">Loading topics...</option>';
+  document.getElementById('warning').classList.remove('visible');
+
+  if (!selectedSheet) return;
+
+  // ПЕРЕДАЕМ selectedSheet НА СЕРВЕР:
+  google.script.run
+    .withSuccessHandler(function(topics) {
+      currentSheetTopics = topics || [];
+      topicSelect.innerHTML = '<option value="" disabled selected>-- Select a topic --</option>';
+
+      if (currentSheetTopics.length === 0) {
+        topicSelect.innerHTML = '<option value="" disabled>-- No topics on this sheet --</option>';
+        return;
+      }
+
+      currentSheetTopics.forEach(function(t) {
+        var opt = document.createElement('option'); 
+        opt.value = t; 
+        opt.textContent = t;
+        topicSelect.appendChild(opt);
+      });
+      
+      topicSelect.disabled = false;
+      updateReassignDropdown();
+    })
+    .withFailureHandler(function(err) {
+      showMessage('Failed to load topics for this sheet: ' + err.message, 'error');
+    })
+    .getExistingTopics(selectedSheet);
+}
+    function onTopicChange() {
+      var topic = document.getElementById('topicSelect').value;
+      var warning = document.getElementById('warning');
+
+      if (topic) {
+        warning.textContent = 'Warning: Action on "' + topic + '" will affect all questions under this topic on the selected sheet.';
+        warning.classList.add('visible');
+      } else {
+        warning.classList.remove('visible');
+      }
+
+      updateReassignDropdown();
+    }
+
+    function onActionChange() {
+      var action = document.querySelector('input[name="action"]:checked').value;
+      document.getElementById('reassignGroup').classList.toggle('visible', action === 'reassign');
+    }
+
+    function updateReassignDropdown() {
+      var selectedTopic = document.getElementById('topicSelect').value;
+      var reassignSelect = document.getElementById('reassignSelect');
+      reassignSelect.innerHTML = '<option value="">-- Select topic --</option>';
+
+      currentSheetTopics.forEach(function(t) {
+        if (t !== selectedTopic) {
+          var opt = document.createElement('option');
+          opt.value = t; opt.textContent = t;
+          reassignSelect.appendChild(opt);
+        }
+      });
+    }
+
+    function submitForm() {
+      var sheetName = document.getElementById('sheetName').value;
+      var topic = document.getElementById('topicSelect').value;
+      var action = document.querySelector('input[name="action"]:checked').value;
+      var reassignTo = '';
+
+      if (!sheetName) { showMessage('Please select an assessment sheet.', 'error'); return; }
+      if (!topic) { showMessage('Please select a topic to remove.', 'error'); return; }
+
+      if (action === 'reassign') {
+        reassignTo = document.getElementById('reassignSelect').value;
+        if (!reassignTo) { showMessage('Please select a topic to reassign to.', 'error'); return; }
+      }
+
+      var confirmMsg = action === 'delete'
+        ? 'Are you sure you want to delete topic "' + topic + '" and ALL its questions from "' + sheetName + '"?'
+        : 'Are you sure you want to reassign questions from "' + topic + '" to "' + reassignTo + '"?';
+
+      if (!confirm(confirmMsg)) return;
+
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loading').style.display = 'block';
+      hideMessage();
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showMessage(result || 'Success!', 'success');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('loading').style.display = 'none';
+          setTimeout(function() { google.script.host.close(); }, 1500);
+        })
+        .withFailureHandler(function(error) {
+          showMessage(error.message || 'An error occurred.', 'error');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('loading').style.display = 'none';
+        })
+        .removeTopic(sheetName, topic, action, reassignTo);
+    }
+
+    function showMessage(text, type) {
+      var msg = document.getElementById('msg');
+      msg.textContent = text; msg.className = 'message ' + type;
+    }
+    function hideMessage() { document.getElementById('msg').className = 'message'; }
+  </script>
+</body>
+</html>

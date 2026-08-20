@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 12px; margin: 0; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th {
+      background: #1a73e8; color: #fff; padding: 8px 10px; text-align: left;
+      font-size: 13px; border: 1px solid #1557b0;
+    }
+    td { padding: 7px 10px; border: 1px solid #ddd; font-size: 13px; }
+    tr:nth-child(even) { background: #f8f9fa; }
+    tr:hover { background: #e8f0fe; }
+    .pct-red { color: #c5221f; font-weight: bold; }
+    .pct-yellow { color: #b06000; font-weight: bold; }
+    .pct-green { color: #137333; font-weight: bold; }
+    .pct-na { color: #888; font-style: italic; }
+    .badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 11px; font-weight: bold;
+    }
+    .badge-active { background: #e6f4ea; color: #137333; }
+    .badge-inactive { background: #fce8e6; color: #c5221f; }
+    .btn-close {
+      display: block; margin: 16px auto 0; padding: 10px 32px;
+      font-size: 13px; font-weight: bold; border: none; border-radius: 4px;
+      cursor: pointer; color: #fff; background: #5f6368;
+    }
+    .btn-close:hover { background: #3c4043; }
+    .status { margin-top: 12px; padding: 8px; border-radius: 4px; font-size: 13px; display: none; }
+    .status.loading { display: block; background: #e8f0fe; color: #1a73e8; }
+    .status.error { display: block; background: #fce8e6; color: #c5221f; }
+    #tableWrap { display: none; }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="status loading" id="status">Loading users...</div>
+    <div id="tableWrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Completion</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <button class="btn-close" onclick="google.script.host.close()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function getPctClass(pct) {
+      if (pct === 'N/A') return 'pct-na';
+      var num = parseInt(pct, 10);
+      if (isNaN(num)) return 'pct-na';
+      if (num < 40) return 'pct-red';
+      if (num <= 70) return 'pct-yellow';
+      return 'pct-green';
+    }
+
+    google.script.run
+      .withSuccessHandler(function(users) {
+        var tbody = document.getElementById('tableBody');
+        if (!users || users.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#888;">No users found.</td></tr>';
+        } else {
+          users.forEach(function(u) {
+            var tr = document.createElement('tr');
+            var pctClass = getPctClass(u.completion);
+            tr.innerHTML =
+              '<td><strong>' + escapeHtml(u.name) + '</strong></td>' +
+              '<td>' + escapeHtml(u.email) + '</td>' +
+              '<td>' + escapeHtml(u.role) + '</td>' +
+              '<td class="' + pctClass + '">' + escapeHtml(u.completion) + '</td>';
+            tbody.appendChild(tr);
+          });
+        }
+        document.getElementById('status').style.display = 'none';
+        document.getElementById('tableWrap').style.display = 'block';
+      })
+      .withFailureHandler(function(err) {
+        var el = document.getElementById('status');
+        el.className = 'status error';
+        el.textContent = err.message || 'Failed to load users.';
+      })
+      .getUserListData();
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; color: #333; margin: 0; }
+    .form-group { margin-bottom: 12px; }
+    label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; }
+    select, input[type="text"] { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .btn { background: #4285f4; color: #fff; padding: 10px; width: 100%; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .btn:hover { background: #3367d6; }
+    #results { margin-top: 15px; font-size: 13px; max-height: 250px; overflow-y: auto; border-top: 1px solid #eee; padding-top: 10px; }
+    .res-item { background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #4285f4; }
+    .res-topic { font-weight: bold; color: #1a73e8; font-size: 12px; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="form-group">
+    <label>Assessment Sheet (Optional):</label>
+    <select id="sheetName" onchange="onSheetChange()"><option value="">-- All Sheets --</option></select>
+  </div>
+  <div class="form-group">
+    <label>Topic (Optional):</label>
+    <select id="topicFilter"><option value="">-- All Topics --</option></select>
+  </div>
+  <div class="form-group">
+    <label>Keyword (Optional):</label>
+    <input type="text" id="keyword" placeholder="Type to search...">
+  </div>
+  <button class="btn" onclick="doSearch()">Search</button>
+  <div id="results"></div>
+
+  <script>
+    var allTopics = [];
+    document.addEventListener('DOMContentLoaded', function() {
+      google.script.run.withSuccessHandler(function(topics) { allTopics = topics || []; onSheetChange(); }).getTopicsForSelect();
+      google.script.run.withSuccessHandler(function(sheets) {
+        var sel = document.getElementById('sheetName');
+        sheets.forEach(function(sh) { var opt = document.createElement('option'); opt.value = sh; opt.text = sh; sel.appendChild(opt); });
+      }).getAssessmentSheets();
+    });
+
+    function onSheetChange() {
+      var sh = document.getElementById('sheetName').value;
+      var tFilt = document.getElementById('topicFilter');
+      tFilt.innerHTML = '<option value="">-- All Topics --</option>';
+      
+      var unique = [];
+      allTopics.forEach(function(t) {
+        if ((!sh || t.sheetName === sh) && unique.indexOf(t.name) === -1) {
+          unique.push(t.name);
+          var opt = document.createElement('option'); opt.value = t.name; opt.text = t.name; tFilt.appendChild(opt);
+        }
+      });
+    }
+
+    function doSearch() {
+      var sheet = document.getElementById('sheetName').value;
+      var topic = document.getElementById('topicFilter').value;
+      var kw = document.getElementById('keyword').value;
+      
+      var resDiv = document.getElementById('results');
+      resDiv.innerHTML = 'Searching...';
+      
+      google.script.run.withSuccessHandler(function(data) {
+        if (data.length === 0) { resDiv.innerHTML = 'No questions found.'; return; }
+        resDiv.innerHTML = '';
+        data.forEach(function(q) {
+          var div = document.createElement('div'); div.className = 'res-item';
+          var topicDiv = document.createElement('div'); topicDiv.className = 'res-topic';
+          topicDiv.textContent = '[' + q.sheetName + '] ' + q.topic + ' (Row: ' + q.row + ')';
+          div.appendChild(topicDiv); div.appendChild(document.createTextNode(q.question));
+          resDiv.appendChild(div);
+        });
+      }).searchQuestions(sheet, topic, kw);
+    }
+  </script>
+</body>
+</html>

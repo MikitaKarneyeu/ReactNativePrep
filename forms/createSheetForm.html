@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; margin: 0; color: #333; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+    input[type="text"] { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 14px; }
+    input:focus { outline: none; border-color: #4285f4; box-shadow: 0 0 4px rgba(66, 133, 244, 0.3); }
+    .btn { background-color: #4285f4; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 14px; font-weight: bold; margin-top: 10px; transition: background-color 0.2s; }
+    .btn:hover { background-color: #3367d6; }
+    .btn:disabled { background-color: #a0c1f9; cursor: not-allowed; }
+    #status { margin-top: 12px; font-size: 13px; text-align: center; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <form id="mainForm">
+    <div class="form-group">
+      <label for="sheetName">New Sheet Name (e.g. Soft Skills):</label>
+      <input type="text" id="sheetName" required placeholder="Culture Fit">
+    </div>
+    <button type="submit" class="btn" id="submitBtn">Create Sheet</button>
+    <div id="status"></div>
+  </form>
+
+  <script>
+    document.getElementById('mainForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('submitBtn');
+      var status = document.getElementById('status');
+      
+      btn.disabled = true;
+      status.style.color = '#555';
+      status.textContent = 'Creating and configuring sheet...';
+      
+      var sheetName = document.getElementById('sheetName').value;
+      
+      google.script.run
+        .withSuccessHandler(function(msg) {
+          status.style.color = '#0f9d58';
+          status.textContent = msg;
+          document.getElementById('sheetName').value = '';
+          
+          // Close the window 2 seconds after successful creation
+          setTimeout(function() { google.script.host.close(); }, 2000);
+        })
+        .withFailureHandler(function(err) {
+          status.style.color = '#d23f31';
+          status.textContent = 'Error: ' + err.message;
+          btn.disabled = false;
+        })
+        .createNewAssessmentSheet(sheetName);
+    });
+  </script>
+</body>
+</html>

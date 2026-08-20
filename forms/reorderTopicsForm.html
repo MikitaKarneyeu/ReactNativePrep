@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 16px;
+      margin: 0;
+    }
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+    .topic-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      max-height: 320px;
+      overflow-y: auto;
+      background: #fafafa;
+    }
+    .topic-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+      background: white;
+    }
+    .topic-item:last-child {
+      border-bottom: none;
+    }
+    .topic-number {
+      font-weight: bold;
+      color: #666;
+      min-width: 30px;
+      text-align: center;
+      margin-right: 12px;
+    }
+    .topic-name {
+      flex: 1;
+      font-size: 14px;
+    }
+    .topic-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .btn-arrow {
+      width: 30px;
+      height: 30px;
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .btn-arrow:hover {
+      background: #f1f3f4;
+    }
+    .btn-arrow:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 8px;
+      margin-top: 16px;
+    }
+    .btn-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #3367d6;
+    }
+    .btn-primary:disabled {
+      background-color: #a0c4f8;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background-color: #f1f3f4;
+      color: #333;
+    }
+    .btn-secondary:hover {
+      background-color: #e2e4e6;
+    }
+    .buttons {
+      margin-top: 16px;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .message.success {
+      background-color: #e6f4ea;
+      color: #137333;
+      border: 1px solid #ceead6;
+      display: block;
+    }
+    .message.error {
+      background-color: #fce8e6;
+      color: #c5221f;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    .loading {
+      display: none;
+      color: #666;
+      font-style: italic;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="msg" class="message"></div>
+
+  <div id="formContent">
+    <div class="hint">Use the up/down arrows to reorder topics. The order will be saved when you click "Save Order".</div>
+
+    <ul id="topicList" class="topic-list">
+      <li class="topic-item"><em>Loading topics...</em></li>
+    </ul>
+
+    <div class="buttons">
+      <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">Save Order</button>
+      <button class="btn btn-secondary" onclick="google.script.host.close()">Cancel</button>
+    </div>
+
+    <div id="loading" class="loading">Saving order...</div>
+  </div>
+
+  <script>
+    var topics = [];
+
+    // Load topics on page load
+    google.script.run
+      .withSuccessHandler(function(data) {
+        topics = data;
+        renderList();
+      })
+      .withFailureHandler(function(error) {
+        showMessage('Failed to load topics: ' + error.message, 'error');
+      })
+      .getExistingTopics();
+
+    function renderList() {
+      var list = document.getElementById('topicList');
+      if (topics.length === 0) {
+        list.innerHTML = '<li class="topic-item"><em>No topics found.</em></li>';
+        return;
+      }
+
+      var html = '';
+      for (var i = 0; i < topics.length; i++) {
+        html += '<li class="topic-item" data-index="' + i + '">' +
+          '<span class="topic-number">' + (i + 1) + '</span>' +
+          '<span class="topic-name">' + _escapeHtml(topics[i]) + '</span>' +
+          '<span class="topic-actions">' +
+          '<button class="btn-arrow" onclick="moveUp(' + i + ')" ' + (i === 0 ? 'disabled' : '') + ' title="Move up">&#9650;</button>' +
+          '<button class="btn-arrow" onclick="moveDown(' + i + ')" ' + (i === topics.length - 1 ? 'disabled' : '') + ' title="Move down">&#9660;</button>' +
+          '</span>' +
+          '</li>';
+      }
+      list.innerHTML = html;
+    }
+
+    function moveUp(index) {
+      if (index <= 0) return;
+      var temp = topics[index];
+      topics[index] = topics[index - 1];
+      topics[index - 1] = temp;
+      renderList();
+    }
+
+    function moveDown(index) {
+      if (index >= topics.length - 1) return;
+      var temp = topics[index];
+      topics[index] = topics[index + 1];
+      topics[index + 1] = temp;
+      renderList();
+    }
+
+    function submitForm() {
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loading').style.display = 'block';
+      hideMessage();
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showMessage(result, 'success');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('loading').style.display = 'none';
+          setTimeout(function() {
+            google.script.host.close();
+          }, 1500);
+        })
+        .withFailureHandler(function(error) {
+          showMessage(error.message || 'An error occurred.', 'error');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('loading').style.display = 'none';
+        })
+        .reorderTopics(topics);
+    }
+
+    function showMessage(text, type) {
+      var msg = document.getElementById('msg');
+      msg.textContent = text;
+      msg.className = 'message ' + type;
+    }
+
+    function hideMessage() {
+      document.getElementById('msg').className = 'message';
+    }
+
+    function _escapeHtml(text) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(text));
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

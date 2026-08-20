@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 12px; margin: 0; }
+    label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; }
+    select {
+      width: 100%; padding: 8px; margin-top: 4px; font-size: 13px;
+      border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+    }
+    .btn {
+      display: inline-block; margin-top: 16px; padding: 10px 24px;
+      font-size: 13px; font-weight: bold; border: none; border-radius: 4px;
+      cursor: pointer; color: #fff; background: #c5221f;
+    }
+    .btn:hover { background: #a31815; }
+    .btn:disabled { background: #aaa; cursor: not-allowed; }
+    .status { margin-top: 12px; padding: 8px; border-radius: 4px; font-size: 13px; display: none; }
+    .status.success { display: block; background: #e6f4ea; color: #137333; }
+    .status.error { display: block; background: #fce8e6; color: #c5221f; }
+    .status.loading { display: block; background: #e8f0fe; color: #1a73e8; }
+    #userInfo {
+      margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 4px;
+      font-size: 13px; display: none;
+    }
+    #confirmRow {
+      margin-top: 12px; padding: 10px; background: #fff3e0; border: 1px solid #ffcc80;
+      border-radius: 4px; display: none;
+    }
+    #confirmRow label { font-weight: bold; display: inline; color: #e65100; font-size: 13px; }
+    #confirmCheck { margin-right: 6px; width: 16px; height: 16px; vertical-align: middle; }
+    #removeFields { display: none; }
+  </style>
+</head>
+<body>
+  <div>
+    <label for="userSelect">Select User to Remove</label>
+    <select id="userSelect" onchange="onUserSelect()">
+      <option value="">-- Loading users... --</option>
+    </select>
+
+    <div id="userInfo"></div>
+
+    <div id="removeFields">
+      <div id="confirmRow">
+        <input type="checkbox" id="confirmCheck" onchange="onConfirmChange()">
+        <label for="confirmCheck">⚠️ I understand this will delete all their data</label>
+      </div>
+      <button class="btn" id="submitBtn" onclick="submitForm()" disabled>Remove User</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    var usersData = [];
+
+    function onUserSelect() {
+      var sel = document.getElementById('userSelect');
+      var email = sel.value;
+      var infoDiv = document.getElementById('userInfo');
+      var fieldsDiv = document.getElementById('removeFields');
+      var confirmDiv = document.getElementById('confirmRow');
+
+      if (!email) {
+        infoDiv.style.display = 'none';
+        fieldsDiv.style.display = 'none';
+        confirmDiv.style.display = 'none';
+        return;
+      }
+
+      var user = usersData.find(function(u) { return u.email === email; });
+      if (!user) return;
+
+      infoDiv.innerHTML =
+        '<strong>' + user.name + '</strong><br>' +
+        'Email: ' + user.email + '<br>' +
+        'Role: ' + user.role;
+      infoDiv.style.display = 'block';
+      fieldsDiv.style.display = 'block';
+      confirmDiv.style.display = 'block';
+      document.getElementById('confirmCheck').checked = false;
+      document.getElementById('submitBtn').disabled = true;
+      hideStatus();
+    }
+
+    function onConfirmChange() {
+      document.getElementById('submitBtn').disabled = !document.getElementById('confirmCheck').checked;
+    }
+
+    function submitForm() {
+      var email = document.getElementById('userSelect').value;
+      if (!email) return;
+
+      // Client-side confirmation (Ui.alert doesn't work from google.script.run)
+      var user = usersData.find(function(u) { return u.email === email; });
+      var name = user ? user.name : email;
+      if (!confirm(
+        'Remove user "' + name + '" (' + email + ')?\n\n' +
+        'This will DELETE their column and all checkbox data.\n' +
+        'This action cannot be undone.'
+      )) return;
+
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      showStatus('Removing user...', 'loading');
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showStatus('User removed successfully!', 'success');
+          setTimeout(function() { google.script.host.close(); }, 1500);
+        })
+        .withFailureHandler(function(err) {
+          showStatus(err.message || 'Failed to remove user.', 'error');
+          btn.disabled = false;
+        })
+        .removeUser(email);
+    }
+
+    function showStatus(msg, type) {
+      var el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status ' + type;
+    }
+
+    function hideStatus() {
+      document.getElementById('status').className = 'status';
+    }
+
+    // Load users on open
+    google.script.run
+      .withSuccessHandler(function(users) {
+        usersData = users || [];
+        var sel = document.getElementById('userSelect');
+        sel.innerHTML = '<option value="">-- Select a user --</option>';
+        usersData.forEach(function(u) {
+          var opt = document.createElement('option');
+          opt.value = u.email;
+          opt.textContent = u.name + ' (' + u.email + ')';
+          sel.appendChild(opt);
+        });
+      })
+      .withFailureHandler(function(err) {
+        var sel = document.getElementById('userSelect');
+        sel.innerHTML = '<option value="">-- Error loading users --</option>';
+        showStatus(err.message || 'Failed to load users.', 'error');
+      })
+      .getUsersForEdit();
+  </script>
+</body>
+</html>

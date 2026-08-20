@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; color: #333; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+    input[type="text"], input[type="email"], select { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+    
+    .btn { background-color: #4285f4; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; transition: background-color 0.2s;}
+    .btn:hover { background-color: #3367d6; }
+    .btn:disabled { background-color: #a0c1f9; cursor: not-allowed; }
+    #status { margin-top: 12px; font-size: 13px; text-align: center; }
+  </style>
+</head>
+<body>
+  <form id="mainForm">
+    <div class="form-group">
+      <label for="email">User Email:</label>
+      <input type="email" id="email" required placeholder="user@company.com">
+    </div>
+    
+    <div class="form-group">
+      <label for="name">Name (for columns):</label>
+      <input type="text" id="name" required placeholder="John Snow">
+    </div>
+    
+    <div class="form-group">
+      <label for="role">System Role:</label>
+      <select id="role" required>
+        <option value="user">User (Candidate)</option>
+        <option value="mentor">Mentor</option>
+      </select>
+    </div> 
+
+    <div class="form-group" id="mentorGroup" style="display: none;">
+      <label for="mentorSelect">Assign Parent Mentor / Manager:</label>
+      <select id="mentorSelect">
+        <option value="">-- Auto (Inherit from Creator) --</option>
+      </select>
+    </div>
+
+    <button type="submit" class="btn" id="submitBtn">Add User</button>
+    <div id="status"></div>
+  </form>
+
+  <script>
+    var subordinatesData = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+  google.script.run.withSuccessHandler(function(callerRole) {
+    
+    google.script.run.withSuccessHandler(function(mentors) {
+      subordinatesData = mentors || [];
+      var mentorSel = document.getElementById('mentorSelect');
+      var mentorGroup = document.getElementById('mentorGroup');
+
+      mentorSel.innerHTML = '<option value="">-- Auto (Inherit from Creator) --</option>';
+
+      if (subordinatesData.length > 0) {
+        subordinatesData.forEach(function(m) {
+          var opt = document.createElement('option');
+          opt.value = m.email;
+          opt.textContent = m.name + ' (' + m.email + ')';
+          mentorSel.appendChild(opt);
+        });
+      }
+
+      if (callerRole === 'admin' || callerRole === 'content_admin' || subordinatesData.length > 1) {
+        mentorGroup.style.display = 'block';
+      } else {
+        mentorGroup.style.display = 'none';
+      }
+    }).getSubordinates();
+
+  }).getUserRole();
+});
+    document.getElementById('mainForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('submitBtn');
+      var status = document.getElementById('status');
+      btn.disabled = true; 
+      status.style.color = '#333';
+      status.textContent = 'Adding...';
+      
+      var email = document.getElementById('email').value.trim();
+      var name = document.getElementById('name').value.trim();
+      var role = document.getElementById('role').value;
+      var mentorSelect = document.getElementById('mentorSelect');
+      var mentorEmail = (mentorSelect) ? mentorSelect.value : '';
+
+      google.script.run
+        .withSuccessHandler(function(msg) {
+          status.style.color = '#0f9d58'; 
+          status.textContent = msg || 'Success!';
+          setTimeout(function() { google.script.host.close(); }, 1200);
+        })
+        .withFailureHandler(function(err) {
+          status.style.color = 'red'; 
+          status.textContent = err.message || String(err); 
+          btn.disabled = false;
+        })
+        .addUser(name, email, role, mentorEmail); 
+    });
+  </script>
+</body>
+</html>
