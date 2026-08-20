@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; margin: 0; color: #333; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+    select, input[type="text"], textarea { width: 100%; padding: 9px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 6px; font-family: inherit; font-size: 13px; transition: all 0.2s; }
+    select:focus, input:focus, textarea:focus { outline: none; border-color: #4285f4; box-shadow: 0 0 4px rgba(66, 133, 244, 0.3); }
+    
+    /* Стили для заблокированного поля */
+    input:disabled, select:disabled { background-color: #f1f3f4; cursor: not-allowed; color: #5f6368; border-color: #e0e0e0; }
+    
+    textarea { height: 80px; resize: vertical; }
+    .btn { background-color: #4285f4; color: white; padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; width: 100%; font-size: 14px; font-weight: bold; margin-top: 10px; transition: background-color 0.2s; }
+    .btn:hover { background-color: #3367d6; }
+    .btn:disabled { background-color: #a0c1f9; cursor: not-allowed; }
+    #status { margin-top: 10px; font-size: 13px; text-align: center; font-weight: 500; }
+    .sub-label { font-size: 11px; color: #666; font-weight: normal; margin-top: 2px; }
+  </style>
+</head>
+<body>
+  <form id="mainForm">
+    <div class="form-group">
+      <label for="sheetName">Assessment Sheet:</label>
+      <select id="sheetName" required onchange="onSheetChange()">
+        <option value="" disabled selected>Loading...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="topicSelect">Select Existing Topic:</label>
+      <select id="topicSelect" onchange="onTopicSelectChange()">
+        <option value="">-- Choose sheet first --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="topic">Topic Name:</label>
+      <input type="text" id="topic" required placeholder="e.g. JavaScript / Core Concepts">
+      <div class="sub-label">Select from above or type a new topic name here</div>
+    </div>
+
+    <div class="form-group">
+      <label for="questionsText">Question(s) (one per line):</label>
+      <textarea id="questionsText" required placeholder="How does Event Loop work?&#10;What is a closure?"></textarea>
+    </div>
+
+    <button type="submit" class="btn" id="submitBtn">Add Question(s)</button>
+    <div id="status"></div>
+  </form>
+
+  <script>
+    var allTopics = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+      google.script.run.withSuccessHandler(function(topics) {
+        allTopics = topics || [];
+        loadSheets();
+      }).getTopicsForSelect();
+    });
+
+    function loadSheets() {
+      google.script.run.withSuccessHandler(function(sheets) {
+        var select = document.getElementById('sheetName');
+        select.innerHTML = '';
+        if (!sheets || sheets.length === 0) {
+          select.innerHTML = '<option value="" disabled>No assessment sheets available</option>';
+          return;
+        }
+        
+        select.innerHTML = '<option value="" disabled selected>-- Select Sheet --</option>';
+        sheets.forEach(function(sheetName) {
+          var option = document.createElement('option');
+          option.value = sheetName;
+          option.text = sheetName;
+          select.appendChild(option);
+        });
+      }).getAssessmentSheets();
+    }
+
+    function onSheetChange() {
+      var selectedSheet = document.getElementById('sheetName').value;
+      var topicSelect = document.getElementById('topicSelect');
+      var topicInput = document.getElementById('topic');
+      
+      // Сбрасываем списки и поля при смене листа
+      topicSelect.innerHTML = '<option value="">-- Create New Topic (Type below) --</option>';
+      topicInput.value = ''; 
+      topicInput.disabled = false;
+
+      if (!selectedSheet) return;
+
+      allTopics.forEach(function(t) {
+        if (t.sheetName === selectedSheet || !t.sheetName) {
+          var option = document.createElement('option');
+          option.value = t.name;
+          option.text = t.name;
+          topicSelect.appendChild(option);
+        }
+      });
+    }
+
+    // Логика блокировки/разблокировки поля ввода
+    function onTopicSelectChange() {
+      var selectVal = document.getElementById('topicSelect').value;
+      var topicInput = document.getElementById('topic');
+      
+      if (selectVal) {
+        // Если выбран существующий топик -> блокируем ввод
+        topicInput.value = selectVal;
+        topicInput.disabled = true;
+      } else {
+        // Если выбрано "-- Create New Topic --" -> очищаем и разблокируем
+        topicInput.value = '';
+        topicInput.disabled = false;
+        topicInput.focus(); // Сразу ставим курсор для удобства
+      }
+    }
+
+    document.getElementById('mainForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('submitBtn');
+      var status = document.getElementById('status');
+      
+      btn.disabled = true;
+      status.style.color = '#555';
+      status.textContent = 'Saving...';
+      
+      var sheetName = document.getElementById('sheetName').value;
+      // Даже если поле disabled, мы можем считать его value через JS
+      var topic = document.getElementById('topic').value.trim();
+      var qText = document.getElementById('questionsText').value;
+      
+      if (!topic) {
+        status.style.color = '#d23f31';
+        status.textContent = 'Topic name cannot be empty!';
+        btn.disabled = false;
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(count) {
+          status.style.color = '#0f9d58';
+          status.textContent = 'Successfully added ' + count + ' question(s)!';
+          document.getElementById('questionsText').value = '';
+          btn.disabled = false;
+        })
+        .withFailureHandler(function(err) {
+          status.style.color = '#d23f31';
+          status.textContent = 'Error: ' + err.message;
+          btn.disabled = false;
+        })
+        .addQuestions(sheetName, topic, qText);
+    });
+  </script>
+</body>
+</html>

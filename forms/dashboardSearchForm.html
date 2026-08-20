@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 16px;
+      margin: 0;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    .hint {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 6px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    input[type="text"]:focus {
+      border-color: #4285f4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(66,133,244,0.2);
+    }
+    .search-row {
+      display: flex;
+      gap: 8px;
+    }
+    .search-row input {
+      flex: 1;
+    }
+    .btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .btn-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #3367d6;
+    }
+    .btn-primary:disabled {
+      background-color: #a0c4f8;
+      cursor: not-allowed;
+    }
+    .buttons {
+      margin-top: 16px;
+      text-align: right;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .message.success {
+      background-color: #e6f4ea;
+      color: #137333;
+      border: 1px solid #ceead6;
+      display: block;
+    }
+    .message.error {
+      background-color: #fce8e6;
+      color: #c5221f;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    .loading {
+      display: none;
+      color: #666;
+      font-style: italic;
+      margin-top: 8px;
+    }
+    .results-section {
+      display: none;
+    }
+    .results-section.visible {
+      display: block;
+    }
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .results-header label {
+      margin-bottom: 0;
+    }
+    .results-count {
+      font-size: 12px;
+      color: #666;
+    }
+    .results-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      max-height: 320px;
+      overflow-y: auto;
+      display: block;
+    }
+    .results-table thead {
+      position: sticky;
+      top: 0;
+      background: #f1f3f4;
+      z-index: 1;
+    }
+    .results-table th {
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: bold;
+      color: #333;
+      border-bottom: 2px solid #ddd;
+      font-size: 13px;
+    }
+    .results-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+      vertical-align: top;
+    }
+    .results-table tbody tr:hover {
+      background: #f8f9fa;
+    }
+    .no-results {
+      padding: 20px;
+      text-align: center;
+      color: #999;
+      font-style: italic;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .btn-close {
+      background-color: #f1f3f4;
+      color: #333;
+    }
+    .btn-close:hover {
+      background-color: #e2e4e6;
+    }
+    .stat-cell {
+      text-align: center;
+      font-weight: bold;
+    }
+    .stat-na {
+      color: #999;
+      font-weight: normal;
+    }
+  </style>
+</head>
+<body>
+  <div id="msg" class="message"></div>
+
+  <div id="formContent">
+    <div class="form-group">
+      <label for="query">Search User in Dashboard</label>
+      <div class="hint">Search by name or surname (case-insensitive).</div>
+      <div class="search-row">
+        <input type="text" id="query" placeholder="Enter name or surname..." autofocus>
+        <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">Search</button>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">Searching...</div>
+
+    <div id="resultsSection" class="results-section">
+      <div class="results-header">
+        <label>Results</label>
+        <span class="results-count" id="resultsCount"></span>
+      </div>
+      <div id="resultsContainer"></div>
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-close" onclick="google.script.host.close()">Close</button>
+    </div>
+  </div>
+
+  <script>
+    function doSearch() {
+      var query = document.getElementById("query").value.trim();
+
+      if (!query) {
+        showMessage("Please enter a name to search.", "error");
+        return;
+      }
+
+      document.getElementById("searchBtn").disabled = true;
+      document.getElementById("loading").style.display = "block";
+      document.getElementById("resultsSection").classList.remove("visible");
+      hideMessage();
+
+      google.script.run
+        .withSuccessHandler(function(results) {
+          renderResults(results);
+          document.getElementById("searchBtn").disabled = false;
+          document.getElementById("loading").style.display = "none";
+        })
+        .withFailureHandler(function(error) {
+          showMessage(error.message || "An error occurred.", "error");
+          document.getElementById("searchBtn").disabled = false;
+          document.getElementById("loading").style.display = "none";
+        })
+        .searchDashboardUser(query);
+    }
+
+    function renderResults(results) {
+      var section = document.getElementById("resultsSection");
+      var container = document.getElementById("resultsContainer");
+      var countEl = document.getElementById("resultsCount");
+
+      section.classList.add("visible");
+      countEl.textContent = results.length + " user(s) found";
+
+      if (results.length === 0) {
+        container.innerHTML = '<div class="no-results">No users found matching your search.</div>';
+        return;
+      }
+
+      // Get all topic keys from first result
+      var stats = results[0].stats;
+      var topics = Object.keys(stats);
+
+      var html = '<table class="results-table">' +
+        '<thead><tr><th>Name</th>';
+
+      for (var t = 0; t < topics.length; t++) {
+        html += '<th>' + _escapeHtml(topics[t]) + '</th>';
+      }
+      html += '</tr></thead><tbody>';
+
+      for (var i = 0; i < results.length; i++) {
+        html += '<tr><td>' + _escapeHtml(results[i].name) + '</td>';
+        for (var j = 0; j < topics.length; j++) {
+          var val = results[i].stats[topics[j]];
+          if (val === "N/A" || val === null || val === undefined) {
+            html += '<td class="stat-cell stat-na">N/A</td>';
+          } else {
+            html += '<td class="stat-cell">' + _escapeHtml(String(val)) + '</td>';
+          }
+        }
+        html += '</tr>';
+      }
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    // Search on Enter key
+    document.getElementById("query").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        doSearch();
+      }
+    });
+
+    function showMessage(text, type) {
+      var msg = document.getElementById("msg");
+      msg.textContent = text;
+      msg.className = "message " + type;
+    }
+
+    function hideMessage() {
+      document.getElementById("msg").className = "message";
+    }
+
+    function _escapeHtml(text) {
+      var div = document.createElement("div");
+      div.appendChild(document.createTextNode(text));
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

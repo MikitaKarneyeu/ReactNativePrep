@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
+    label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 5px; }
+    select { width: 100%; padding: 8px; margin-bottom: 12px; border-radius: 6px; border: 1px solid #ccc; }
+    #qList { height: 260px; overflow-y: auto; border: 1px solid #eee; padding: 10px; border-radius: 6px; margin-bottom: 15px; background: #fdfdfd; }
+    .q-item { margin-bottom: 8px; font-size: 13px; display: flex; align-items: flex-start; }
+    .q-item input { margin-right: 8px; margin-top: 3px; cursor: pointer; }
+    .btn { background: #d23f31; color: white; padding: 10px; width: 100%; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <label>Assessment Sheet:</label>
+  <select id="sheetName" onchange="onSheetChange()">
+    <option value="" disabled selected>Loading...</option>
+  </select>
+
+  <label>Filter by Topic (Optional):</label>
+  <select id="topicFilter" onchange="renderQuestions()">
+    <option value="" disabled selected>-- Choose sheet first --</option>
+  </select>
+
+  <label>Select Questions to Remove:</label>
+  <div id="qList"><i>Choose a sheet first</i></div>
+
+  <button class="btn" id="btn" onclick="removeSelected()">Remove Selected</button>
+  <div id="status" style="margin-top:10px; text-align:center; font-size:13px;"></div>
+
+  <script>
+    var allQuestions = [];
+    document.addEventListener('DOMContentLoaded', function() {
+      google.script.run.withSuccessHandler(function(qs) { allQuestions = qs || []; }).getQuestionsList();
+      google.script.run.withSuccessHandler(function(sheets) {
+        var sel = document.getElementById('sheetName'); sel.innerHTML = '<option value="" disabled selected>-- Select Sheet --</option>';
+        sheets.forEach(function(sh) { var opt = document.createElement('option'); opt.value = sh; opt.text = sh; sel.appendChild(opt); });
+      }).getAssessmentSheets();
+    });
+
+    function onSheetChange() {
+      var sh = document.getElementById('sheetName').value;
+      var tFilt = document.getElementById('topicFilter');
+      
+      var uniqueTopics = [];
+      allQuestions.forEach(function(q) {
+        if (q.sheetName === sh && uniqueTopics.indexOf(q.topic) === -1) uniqueTopics.push(q.topic);
+      });
+      
+      tFilt.innerHTML = '<option value="">-- All Topics --</option>';
+      uniqueTopics.forEach(function(t) {
+        var opt = document.createElement('option'); opt.value = t; opt.text = t; tFilt.appendChild(opt);
+      });
+      
+      renderQuestions();
+    }
+
+    function renderQuestions() {
+      var sh = document.getElementById('sheetName').value;
+      var top = document.getElementById('topicFilter').value;
+      var list = document.getElementById('qList');
+      list.innerHTML = '';
+      
+      var filtered = allQuestions.filter(function(q) { 
+        return q.sheetName === sh && (top === "" || q.topic === top); 
+      });
+      
+      if(filtered.length === 0) { list.innerHTML = 'No questions found.'; return; }
+      
+      filtered.forEach(function(q) {
+        var div = document.createElement('div'); div.className = 'q-item';
+        var label = document.createElement('label'); label.style.cssText = 'font-weight:normal; display:flex;';
+        var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = q.row;
+        var span = document.createElement('span');
+        var b = document.createElement('b'); b.textContent = '[' + q.topic + ']';
+        span.appendChild(b); span.appendChild(document.createTextNode(' ' + q.question));
+        label.appendChild(cb); label.appendChild(span); div.appendChild(label);
+        list.appendChild(div);
+      });
+    }
+
+    function removeSelected() {
+      var sh = document.getElementById('sheetName').value;
+      var boxes = document.querySelectorAll('#qList input[type="checkbox"]:checked');
+      if (boxes.length === 0) return alert('Select at least one question.');
+      if (!confirm('Remove ' + boxes.length + ' question(s)?')) return;
+
+      var items = Array.from(boxes).map(function(b) { return { sheetName: sh, row: parseInt(b.value) }; });
+      
+      document.getElementById('btn').disabled = true;
+      document.getElementById('status').textContent = 'Removing...';
+      
+      google.script.run
+        .withSuccessHandler(function() {
+          document.getElementById('status').style.color = '#0f9d58'; document.getElementById('status').textContent = 'Removed!';
+          setTimeout(function(){ google.script.host.close(); }, 1500);
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('btn').disabled = false;
+          document.getElementById('status').style.color = '#d23f31';
+          document.getElementById('status').textContent = 'Error: ' + (err.message || 'Unknown error');
+        })
+        .removeQuestions(items);
+    }
+  </script>
+</body>
+</html>

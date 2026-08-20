@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 12px; margin: 0; color: #333; }
+    label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; }
+    input, select {
+      width: 100%; padding: 8px; margin-top: 4px; font-size: 13px;
+      border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;
+    }
+    .btn {
+      display: block; width: 100%; margin-top: 18px; padding: 10px;
+      font-size: 13px; font-weight: bold; border: none; border-radius: 4px;
+      cursor: pointer; color: #fff; background: #1a73e8; transition: background 0.2s;
+    }
+    .btn:hover { background: #1557b0; }
+    .btn:disabled { background: #aaa; cursor: not-allowed; }
+    .status { margin-top: 12px; padding: 8px; border-radius: 4px; font-size: 13px; display: none; text-align: center; }
+    .status.success { display: block; background: #e6f4ea; color: #137333; }
+    .status.error { display: block; background: #fce8e6; color: #c5221f; }
+    .status.loading { display: block; background: #e8f0fe; color: #1a73e8; }
+    #editFields { display: none; }
+  </style>
+</head>
+<body>
+  <div>
+    <label for="userSelect">Select User</label>
+    <select id="userSelect" onchange="onUserSelect()">
+      <option value="">-- Loading users... --</option>
+    </select>
+
+    <div id="editFields">
+      <label for="name">Name</label>
+      <input type="text" id="name" placeholder="User Full Name">
+
+      <label for="email">Email</label>
+      <input type="email" id="email" placeholder="user@domain.com">
+
+      <label for="role">Role</label>
+      <select id="role">
+        <option value="user">User (Candidate)</option>
+        <option value="mentor">Mentor</option>
+        <!-- Опция добавится динамически, если у текущего юзера есть права -->
+      </select>
+
+      <div id="mentorGroup">
+        <label for="mentorSelect">Assign Mentor (from your team)</label>
+        <select id="mentorSelect">
+          <option value="">-- Keep Current Mentor(s) --</option>
+        </select>
+      </div>
+
+      <button class="btn" id="submitBtn" onclick="submitForm()">Save Changes</button>
+    </div>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    var usersData = [];
+    var subordinatesData = []; 
+    var currentUserRole = 'user'; // Храним роль текущего оператора
+    var originalEmail = '';
+
+    function configureRoleDropdown() {
+      var roleSel = document.getElementById('role');
+      roleSel.innerHTML = '';
+
+      var optUser = document.createElement('option');
+      optUser.value = 'user';
+      optUser.textContent = 'User (Candidate)';
+      roleSel.appendChild(optUser);
+
+      var optMentor = document.createElement('option');
+      optMentor.value = 'mentor';
+      optMentor.textContent = 'Mentor';
+      roleSel.appendChild(optMentor);
+
+      // Показываем Content Admin ТОЛЬКО если форму открыл Admin или Content Admin
+      if (currentUserRole === 'admin' || currentUserRole === 'content_admin') {
+        var optCA = document.createElement('option');
+        optCA.value = 'content_admin';
+        optCA.textContent = 'Content Admin';
+        roleSel.appendChild(optCA);
+      }
+    }
+
+    function populateMentorsDropdown(currentEmail) {
+      var mentorSel = document.getElementById('mentorSelect');
+      var mentorGroup = document.getElementById('mentorGroup');
+      
+      mentorSel.innerHTML = '<option value="">-- Keep Current Mentor(s) --</option>';
+      
+      if (!subordinatesData || subordinatesData.length <= 1) {
+        mentorGroup.style.display = 'none';
+        return; 
+      }
+      
+      mentorGroup.style.display = 'block';
+      subordinatesData.forEach(function(m) {
+        if (m.email !== currentEmail) {
+          var opt = document.createElement('option');
+          opt.value = m.email;
+          opt.textContent = m.name + ' (' + m.email + ')';
+          mentorSel.appendChild(opt);
+        }
+      });
+    }
+
+    function onUserSelect() {
+      var sel = document.getElementById('userSelect');
+      var email = sel.value;
+      if (!email) {
+        document.getElementById('editFields').style.display = 'none';
+        return;
+      }
+      var user = usersData.find(function(u) { return u.email === email; });
+      if (!user) return;
+
+      originalEmail = user.email;
+      document.getElementById('name').value = user.name || '';
+      document.getElementById('email').value = user.email || '';
+      
+      // Настраиваем доступность ролей перед установкой значения
+      configureRoleDropdown();
+      document.getElementById('role').value = user.role || 'user';
+      
+      populateMentorsDropdown(user.email);
+      document.getElementById('mentorSelect').value = '';
+      
+      document.getElementById('editFields').style.display = 'block';
+      hideStatus();
+    }
+
+    function submitForm() {
+      var newName = document.getElementById('name').value.trim();
+      var newEmail = document.getElementById('email').value.trim();
+      var newRole = document.getElementById('role').value;
+      var newMentorEmail = document.getElementById('mentorSelect').value;
+
+      if (!newName) { showStatus('Please enter a name.', 'error'); return; }
+      if (!newEmail) { showStatus('Please enter an email.', 'error'); return; }
+
+      var btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      showStatus('Saving changes...', 'loading');
+
+      google.script.run
+        .withSuccessHandler(function() {
+          showStatus('User updated successfully!', 'success');
+          setTimeout(function() { google.script.host.close(); }, 1500);
+        })
+        .withFailureHandler(function(err) {
+          showStatus(err.message || 'Failed to update user.', 'error');
+          btn.disabled = false;
+        })
+        .editUser(originalEmail, newName, newEmail, newRole, newMentorEmail);
+    }
+
+    function showStatus(msg, type) {
+      var el = document.getElementById('status');
+      el.textContent = msg;
+      el.className = 'status ' + type;
+    }
+
+    function hideStatus() {
+      document.getElementById('status').className = 'status';
+    }
+
+    google.script.run
+      .withSuccessHandler(function(role) {
+        currentUserRole = role || 'user';
+      })
+      .getUserRole();
+
+    google.script.run
+      .withSuccessHandler(function(users) {
+        usersData = users || [];
+        var sel = document.getElementById('userSelect');
+        sel.innerHTML = '<option value="">-- Select a user --</option>';
+        usersData.forEach(function(u) {
+          var opt = document.createElement('option');
+          opt.value = u.email;
+          opt.textContent = u.name + ' (' + u.email + ')';
+          sel.appendChild(opt);
+        });
+      })
+      .withFailureHandler(function(err) {
+        var sel = document.getElementById('userSelect');
+        sel.innerHTML = '<option value="">-- Error loading users --</option>';
+        showStatus(err.message || 'Failed to load users.', 'error');
+      })
+      .getUsersForEdit();
+
+    google.script.run
+      .withSuccessHandler(function(mentors) {
+        subordinatesData = mentors || [];
+      })
+      .getSubordinates();
+  </script>
+</body>
+</html>

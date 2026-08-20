@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 16px;
+      margin: 0;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      color: #333;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    select:focus, input[type="text"]:focus {
+      border-color: #4285f4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(66,133,244,0.2);
+    }
+    .btn {
+      padding: 10px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    .btn-primary {
+      background-color: #4285f4;
+      color: white;
+    }
+    .btn-primary:hover {
+      background-color: #3367d6;
+    }
+    .btn-primary:disabled {
+      background-color: #a0c4f8;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background-color: #f1f3f4;
+      color: #333;
+    }
+    .btn-secondary:hover {
+      background-color: #e2e4e6;
+    }
+    .buttons {
+      margin-top: 20px;
+    }
+    .message {
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .message.success {
+      background-color: #e6f4ea;
+      color: #137333;
+      border: 1px solid #ceead6;
+      display: block;
+    }
+    .message.error {
+      background-color: #fce8e6;
+      color: #c5221f;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+    .loading {
+      display: none;
+      color: #666;
+      font-style: italic;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div id="msg" class="message"></div>
+
+  <div id="formContent">
+    <div class="form-group">
+      <label for="topicSelect">Current Topic</label>
+      <select id="topicSelect">
+        <option value="">-- Loading topics... --</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="newName">New Name</label>
+      <input type="text" id="newName" placeholder="Enter new topic name...">
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-primary" id="submitBtn" onclick="submitForm()">Rename</button>
+      <button class="btn btn-secondary" onclick="google.script.host.close()">Cancel</button>
+    </div>
+
+    <div id="loading" class="loading">Renaming topic...</div>
+  </div>
+
+  <script>
+    // Load topics on page load
+    google.script.run
+      .withSuccessHandler(function(topics) {
+        var select = document.getElementById('topicSelect');
+        select.innerHTML = '<option value="">-- Select a topic --</option>';
+        for (var i = 0; i < topics.length; i++) {
+          var opt = document.createElement('option');
+          opt.value = topics[i];
+          opt.textContent = topics[i];
+          select.appendChild(opt);
+        }
+      })
+      .withFailureHandler(function(error) {
+        showMessage('Failed to load topics: ' + error.message, 'error');
+      })
+      .getExistingTopics();
+
+    function submitForm() {
+      var oldName = document.getElementById('topicSelect').value;
+      var newName = document.getElementById('newName').value.trim();
+
+      if (!oldName) {
+        showMessage('Please select a topic.', 'error');
+        return;
+      }
+      if (!newName) {
+        showMessage('Please enter a new name.', 'error');
+        return;
+      }
+      if (oldName === newName) {
+        showMessage('New name must be different from current name.', 'error');
+        return;
+      }
+
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('loading').style.display = 'block';
+      hideMessage();
+
+      google.script.run
+        .withSuccessHandler(function(result) {
+          showMessage(result, 'success');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('loading').style.display = 'none';
+          setTimeout(function() {
+            google.script.host.close();
+          }, 1500);
+        })
+        .withFailureHandler(function(error) {
+          showMessage(error.message || 'An error occurred.', 'error');
+          document.getElementById('submitBtn').disabled = false;
+          document.getElementById('loading').style.display = 'none';
+        })
+        .renameTopic(oldName, newName);
+    }
+
+    function showMessage(text, type) {
+      var msg = document.getElementById('msg');
+      msg.textContent = text;
+      msg.className = 'message ' + type;
+    }
+
+    function hideMessage() {
+      document.getElementById('msg').className = 'message';
+    }
+  </script>
+</body>
+</html>

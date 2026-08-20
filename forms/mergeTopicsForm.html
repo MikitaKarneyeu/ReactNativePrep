@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
+    .form-group { margin-bottom: 15px; }
+    label { font-size: 13px; font-weight: bold; display: block; margin-bottom: 5px; }
+    select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .btn { background: #f4b400; color: white; padding: 10px; width: 100%; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .btn:hover { background: #e0a800; }
+    #status { margin-top: 10px; font-size: 13px; text-align: center; }
+  </style>
+</head>
+<body>
+  <form id="mainForm">
+    <div class="form-group">
+      <label>Assessment Sheet:</label>
+      <select id="sheetName" required onchange="onSheetChange()"><option value="" disabled selected>Loading...</option></select>
+    </div>
+    <div class="form-group">
+      <label>Source Topic (Will be deleted):</label>
+      <select id="srcTopic" required><option value="" disabled selected>-- Choose sheet first --</option></select>
+    </div>
+    <div class="form-group">
+      <label>Target Topic (Will keep these questions):</label>
+      <select id="tgtTopic" required><option value="" disabled selected>-- Choose sheet first --</option></select>
+    </div>
+    <button type="submit" class="btn" id="submitBtn">Merge Topics</button>
+    <div id="status"></div>
+  </form>
+
+  <script>
+    var allTopics = [];
+    document.addEventListener('DOMContentLoaded', function() {
+      google.script.run.withSuccessHandler(function(topics) { allTopics = topics || []; }).getTopicsForSelect();
+      google.script.run.withSuccessHandler(function(sheets) {
+        var sel = document.getElementById('sheetName'); sel.innerHTML = '<option value="" disabled selected>-- Select Sheet --</option>';
+        sheets.forEach(function(sh) { var opt = document.createElement('option'); opt.value = sh; opt.text = sh; sel.appendChild(opt); });
+      }).getAssessmentSheets();
+    });
+
+    function onSheetChange() {
+      var sh = document.getElementById('sheetName').value;
+      var src = document.getElementById('srcTopic');
+      var tgt = document.getElementById('tgtTopic');
+      src.innerHTML = '<option value="" disabled selected>-- Select Source --</option>';
+      tgt.innerHTML = '<option value="" disabled selected>-- Select Target --</option>';
+      
+      allTopics.forEach(function(t) {
+        if (t.sheetName === sh || !t.sheetName) {
+          var opt1 = document.createElement('option'); opt1.value = t.name; opt1.text = t.name; src.appendChild(opt1);
+          var opt2 = document.createElement('option'); opt2.value = t.name; opt2.text = t.name; tgt.appendChild(opt2);
+        }
+      });
+    }
+
+    document.getElementById('mainForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var src = document.getElementById('srcTopic').value;
+      var tgt = document.getElementById('tgtTopic').value;
+      var sh = document.getElementById('sheetName').value;
+      
+      if (src === tgt) return alert('Source and Target topics cannot be the same!');
+      if (!confirm('Move all questions from "' + src + '" to "' + tgt + '" inside sheet "' + sh + '"?')) return;
+      
+      var btn = document.getElementById('submitBtn'), status = document.getElementById('status');
+      btn.disabled = true; status.textContent = 'Merging...';
+      
+      google.script.run.withSuccessHandler(function() {
+        status.style.color = '#0f9d58'; status.textContent = 'Merged!';
+        setTimeout(function(){ google.script.host.close(); }, 1500);
+      }).withFailureHandler(function(err) {
+        status.style.color = 'red'; status.textContent = err.message; btn.disabled = false;
+      }).mergeTopics(sh, src, tgt);
+    });
+  </script>
+</body>
+</html>
