@@ -115,7 +115,7 @@ function getAssessmentSheets() {
   var ss = SpreadsheetApp.getActive();
   var sheets = ss.getSheets();
   var assessmentSheets = [];
-  var systemSheets = ['Config_Users', 'Config_Topics', 'Log'];
+  var systemSheets = ['Config_Users', 'Config_Topics', 'Log', 'Bug list'];
 
   sheets.forEach(function(sh) {
     var name = sh.getName();
