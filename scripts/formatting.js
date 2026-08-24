@@ -1,5 +1,6 @@
 function sortAndFormatAllSheets(targetSheetName) {
-  var sheets = targetSheetName ? [targetSheetName] : getAssessmentSheets();
+  // Use cached sheets for better performance
+  var sheets = targetSheetName ? [targetSheetName] : getCachedAssessmentSheets();
   if (sheets.length === 0) return;
 
   var configTopics = getSheet('Config_Topics');
@@ -11,8 +12,8 @@ function sortAndFormatAllSheets(targetSheetName) {
     }
   }
 
-  // Prepare active users list for cleanup and mentor mapping
-  var usersData = getExistingUsers();
+  // Use cached users for better performance
+  var usersData = getCachedExistingUsers();
   var validUsers = {};
   var mentorMap = {};
   
@@ -196,21 +197,26 @@ function sortAndFormatAllSheets(targetSheetName) {
 
 /**
  * Helper to dynamically restore native mentor protections after a full sheet format
+ * Optimized to use batch operations
  */
 function restoreNativeProtections(sheet, activeCols, mentorMap) {
+  // Get headers in single API call
   var headers = sheet.getRange(1, 1, 1, activeCols).getValues()[0];
+  var maxRows = sheet.getMaxRows();
   
   for (var c = 3; c < activeCols; c++) {
     var candName = headers[c] ? headers[c].toString().trim() : '';
     if (candName) {
       var mentorEmail = mentorMap[candName.toLowerCase()] || '';
-      var colRange = sheet.getRange(1, c + 1, sheet.getMaxRows(), 1);
+      var colRange = sheet.getRange(1, c + 1, maxRows, 1);
       
+      // Setup protection with batch addEditors
       var prot = colRange.protect().setDescription('Candidate: ' + candName);
       prot.removeEditors(prot.getEditors());
       
+      // Use batch addEditors for better performance
       if (mentorEmail) {
-        try { prot.addEditor(mentorEmail); } catch(e) {}
+        batchAddEditors(prot, [mentorEmail]);
       }
     }
   }

@@ -117,8 +117,8 @@
         select.innerHTML = '<option value="">-- Select a topic --</option>';
         for (var i = 0; i < topics.length; i++) {
           var opt = document.createElement('option');
-          opt.value = topics[i];
-          opt.textContent = topics[i];
+          opt.value = topics[i].name;
+          opt.textContent = topics[i].name;
           select.appendChild(opt);
         }
       })

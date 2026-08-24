@@ -122,8 +122,8 @@ function onSheetChange() {
 
       currentSheetTopics.forEach(function(t) {
         var opt = document.createElement('option'); 
-        opt.value = t; 
-        opt.textContent = t;
+        opt.value = t.name; 
+        opt.textContent = t.name;
         topicSelect.appendChild(opt);
       });
       
@@ -160,9 +160,9 @@ function onSheetChange() {
       reassignSelect.innerHTML = '<option value="">-- Select topic --</option>';
 
       currentSheetTopics.forEach(function(t) {
-        if (t !== selectedTopic) {
+        if (t.name !== selectedTopic) {
           var opt = document.createElement('option');
-          opt.value = t; opt.textContent = t;
+          opt.value = t.name; opt.textContent = t.name;
           reassignSelect.appendChild(opt);
         }
       });

@@ -15,8 +15,9 @@ function onOpen() {
       .addItem('Add User', 'showAddUserForm')
       .addItem('Edit User', 'showEditUserForm')
       .addItem('Remove User', 'showRemoveUserForm')
-      .addItem('List All Users', 'showUserList');
-      
+      .addItem('List All Users', 'showUserList')
+      .addItem('Dashboard Search', 'showDashboardSearchForm');
+
     if (role === 'admin') {
       usersMenu.addSeparator().addItem('Sync Users from Drive', 'syncUsersFromDrive');
     }

@@ -1,3 +1,35 @@
+function showCreateSheetForm() {
+  requireContentAdmin();
+  SpreadsheetApp.getUi().showModalDialog(
+    HtmlService.createHtmlOutputFromFile('forms/createSheetForm').setWidth(400).setHeight(250),
+    'Create New Sheet'
+  );
+}
+
+function showRenameSheetForm() {
+  requireContentAdmin();
+  SpreadsheetApp.getUi().showModalDialog(
+    HtmlService.createHtmlOutputFromFile('forms/renameSheetForm').setWidth(400).setHeight(300),
+    'Rename Sheet'
+  );
+}
+
+function showDeleteSheetForm() {
+  requireContentAdmin();
+  SpreadsheetApp.getUi().showModalDialog(
+    HtmlService.createHtmlOutputFromFile('forms/deleteSheetForm').setWidth(400).setHeight(250),
+    'Delete Sheet'
+  );
+}
+
+function showDashboardSearchForm() {
+  requireAdminOrMentor();
+  SpreadsheetApp.getUi().showModalDialog(
+    HtmlService.createHtmlOutputFromFile('forms/dashboardSearchForm').setWidth(700).setHeight(500),
+    'Dashboard Search'
+  );
+}
+
 function createNewAssessmentSheet(sheetName) {
   requireContentAdmin();
   if (!sheetName || !sheetName.trim()) throw new Error('Sheet name is required.');
@@ -37,7 +69,8 @@ function deleteAssessmentSheet(sheetName) {
 function searchDashboardUser(keyword) {
   requireAdminOrMentor();
   keyword = keyword ? keyword.trim().toLowerCase() : '';
-  var users = getExistingUsers();
+  // Use cached users for better performance
+  var users = getCachedExistingUsers();
   if (keyword) {
     users = users.filter(function(u) {
       return u.name.toLowerCase().indexOf(keyword) !== -1 ||
