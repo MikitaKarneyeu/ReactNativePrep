@@ -2,36 +2,36 @@
  * Question Management: Adding, Editing, Removing, and Searching.
  */
 
-function showAddQuestionForm() { 
-  requireContentAdmin(); 
+function showAddQuestionForm() {
+  requireContentAdmin();
   SpreadsheetApp.getUi().showModalDialog(
-    HtmlService.createHtmlOutputFromFile('addQuestionForm').setWidth(500).setHeight(480), 
+    HtmlService.createHtmlOutputFromFile('forms/addQuestionForm').setWidth(500).setHeight(480),
     'Add Question(s)'
-  ); 
+  );
 }
 
-function showEditQuestionForm() { 
-  requireContentAdmin(); 
+function showEditQuestionForm() {
+  requireContentAdmin();
   SpreadsheetApp.getUi().showModalDialog(
-    HtmlService.createHtmlOutputFromFile('editQuestionForm').setWidth(500).setHeight(500), 
+    HtmlService.createHtmlOutputFromFile('forms/editQuestionForm').setWidth(500).setHeight(500),
     'Edit Question'
-  ); 
+  );
 }
 
-function showRemoveQuestionForm() { 
-  requireContentAdmin(); 
+function showRemoveQuestionForm() {
+  requireContentAdmin();
   SpreadsheetApp.getUi().showModalDialog(
-    HtmlService.createHtmlOutputFromFile('removeQuestionForm').setWidth(550).setHeight(550), 
+    HtmlService.createHtmlOutputFromFile('forms/removeQuestionForm').setWidth(550).setHeight(550),
     'Remove Question(s)'
-  ); 
+  );
 }
 
-function showSearchForm() { 
-  requireContentAdmin(); 
+function showSearchForm() {
+  requireContentAdmin();
   SpreadsheetApp.getUi().showModalDialog(
-    HtmlService.createHtmlOutputFromFile('searchForm').setWidth(600).setHeight(550), 
+    HtmlService.createHtmlOutputFromFile('forms/searchForm').setWidth(600).setHeight(550),
     'Search Questions'
-  ); 
+  );
 }
 
 /**
@@ -56,7 +56,8 @@ function getTopicsForSelect() {
 function getQuestionsList() {
   requireContentAdmin();
   
-  var sheets = getAssessmentSheets();
+  // Use cached assessment sheets for better performance
+  var sheets = getCachedAssessmentSheets();
   var list = [];
   
   sheets.forEach(function(sheetName) {
@@ -160,7 +161,8 @@ function removeQuestions(items) {
 
   // Handle fallback format where items is just an array of row numbers
   if (typeof items[0] === 'number') {
-    var firstSheet = getAssessmentSheets()[0];
+    // Use cached assessment sheets for better performance
+    var firstSheet = getCachedAssessmentSheets()[0];
     items = items.map(function(r) { return { sheetName: firstSheet, row: r }; });
   }
 

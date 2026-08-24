@@ -1,26 +1,26 @@
-function showAddTopicForm() { 
+function showAddTopicForm() {
   requireContentAdmin();
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('addTopicForm').setWidth(400).setHeight(300), 'Add Topic'); 
+  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('forms/addTopicForm').setWidth(400).setHeight(300), 'Add Topic');
 }
 
-function showRenameTopicForm() { 
+function showRenameTopicForm() {
   requireContentAdmin();
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('renameTopicForm').setWidth(400).setHeight(350), 'Rename Topic'); 
+  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('forms/renameTopicForm').setWidth(400).setHeight(350), 'Rename Topic');
 }
 
-function showMergeTopicsForm() { 
+function showMergeTopicsForm() {
   requireContentAdmin();
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('mergeTopicsForm').setWidth(500).setHeight(500), 'Merge Topics'); 
+  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('forms/mergeTopicsForm').setWidth(500).setHeight(500), 'Merge Topics');
 }
 
-function showReorderTopicsForm() { 
+function showReorderTopicsForm() {
   requireContentAdmin();
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('reorderTopicsForm').setWidth(450).setHeight(500), 'Reorder Topics'); 
+  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('forms/reorderTopicsForm').setWidth(450).setHeight(500), 'Reorder Topics');
 }
 
-function showRemoveTopicForm() { 
+function showRemoveTopicForm() {
   requireContentAdmin();
-  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('removeTopicForm').setWidth(450).setHeight(400), 'Remove Topic'); 
+  SpreadsheetApp.getUi().showModalDialog(HtmlService.createHtmlOutputFromFile('forms/removeTopicForm').setWidth(450).setHeight(400), 'Remove Topic');
 }
 
 function addTopic(sheetName, name) {
@@ -41,7 +41,8 @@ function renameTopic(oldName, newName) {
   oldName = oldName.trim(); 
   newName = newName.trim();
   
-  var assessmentSheets = getAssessmentSheets();
+  // Use cached assessment sheets for better performance
+  var assessmentSheets = getCachedAssessmentSheets();
   assessmentSheets.forEach(function(shName) {
     var sh = getSheet(shName);
     if (!sh) return;
@@ -127,7 +128,8 @@ function removeTopic(sheetName, topicName, action, reassignTo) {
     requireContentAdmin();
     if (!topicName) throw new Error('Topic name is required.');
 
-    var sheets = sheetName ? [sheetName] : getAssessmentSheets();
+    // Use cached assessment sheets for better performance
+    var sheets = sheetName ? [sheetName] : getCachedAssessmentSheets();
     var totalAffected = 0;
 
     sheets.forEach(function(shName) {

@@ -167,7 +167,7 @@
       for (var i = 0; i < topics.length; i++) {
         html += '<li class="topic-item" data-index="' + i + '">' +
           '<span class="topic-number">' + (i + 1) + '</span>' +
-          '<span class="topic-name">' + _escapeHtml(topics[i]) + '</span>' +
+          '<span class="topic-name">' + _escapeHtml(topics[i].name) + '</span>' +
           '<span class="topic-actions">' +
           '<button class="btn-arrow" onclick="moveUp(' + i + ')" ' + (i === 0 ? 'disabled' : '') + ' title="Move up">&#9650;</button>' +
           '<button class="btn-arrow" onclick="moveDown(' + i + ')" ' + (i === topics.length - 1 ? 'disabled' : '') + ' title="Move down">&#9660;</button>' +
@@ -212,7 +212,7 @@
           document.getElementById('submitBtn').disabled = false;
           document.getElementById('loading').style.display = 'none';
         })
-        .reorderTopics(topics);
+        .reorderTopics(topics.map(function(t) { return t.name; }));
     }
 
     function showMessage(text, type) {

@@ -13,10 +13,13 @@ function getAdmins() {
 
 function applyNativeProtectionsToAllCandidates() {
   requireAdmin();
-  var sheets = getAssessmentSheets();
-  var users = getExistingUsers();
-  var mentorMap = {};
   
+  // Use cached data for better performance
+  var sheets = getCachedAssessmentSheets();
+  var users = getCachedExistingUsers();
+  
+  // Build mentor map for quick lookup
+  var mentorMap = {};
   for (var i = 0; i < users.length; i++) {
     if (users[i].role === 'user' && users[i].name) {
       mentorMap[users[i].name.toLowerCase()] = users[i].mentorEmail;
@@ -29,10 +32,19 @@ function applyNativeProtectionsToAllCandidates() {
     var sheet = getSheet(shName);
     if (!sheet) return;
 
-    var lastCol = _getLastUserColumn(sheet);
-    if (lastCol < 4) return;
+    // Get sheet metadata in single call
+    var metadata = getSheetMetadata(sheet);
+    if (metadata.lastUserCol < 4) return;
 
-    for (var col = 4; col <= lastCol; col++) {
+    // Batch remove existing protections for all candidate columns
+    var columnsToProtect = [];
+    for (var col = 4; col <= metadata.lastUserCol; col++) {
+      columnsToProtect.push(col);
+    }
+    batchRemoveProtectionsByColumns(sheet, columnsToProtect);
+
+    // Process each candidate column
+    for (var col = 4; col <= metadata.lastUserCol; col++) {
       var cell = sheet.getRange(1, col);
       var candidateName = cell.getValue();
       
@@ -41,23 +53,24 @@ function applyNativeProtectionsToAllCandidates() {
       if (candidateName) {
         var cleanName = candidateName.toString().trim().toLowerCase();
         var mentorEmail = mentorMap[cleanName] || '';
-        var colRange = sheet.getRange(1, col, sheet.getMaxRows(), 1);
         
-        var existingProtections = sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE);
-        existingProtections.forEach(function(p) {
-          if (p.getRange().getColumn() === col) p.remove();
-        });
-
+        // Get all editors for this candidate
+        var allEditors = [];
+        if (mentorEmail) {
+          allEditors.push(mentorEmail);
+        }
+        
+        // Setup protection with batch addEditors
+        var colRange = sheet.getRange(1, col, metadata.maxRows, 1);
         var prot = colRange.protect().setDescription('Candidate: ' + candidateName);
         prot.removeEditors(prot.getEditors());
-
-        if (mentorEmail) {
-          try { prot.addEditor(mentorEmail); } catch(e) {}
-        }
+        batchAddEditors(prot, allEditors);
+        
         protectedCount++;
       }
     }
   });
+  
   SpreadsheetApp.getUi().alert('Native Google protection successfully applied to ' + protectedCount + ' columns!');
 }
 
@@ -247,7 +260,7 @@ function getSubordinates() {
   });
 }
 
-function getExistingTopics() {
+function getExistingTopics(sheetName) {
   var config = getSheet('Config_Topics');
   if (!config) return [];
 
@@ -259,11 +272,14 @@ function getExistingTopics() {
 
   data.forEach(function(r) {
     if (r[0]) {
-      topics.push({
-        name: r[0].toString().trim(),
-        order: r[1] || 999,
-        sheetName: r[2] ? r[2].toString().trim() : ''
-      });
+      var topicSheet = r[2] ? r[2].toString().trim() : '';
+      if (!sheetName || topicSheet === sheetName) {
+        topics.push({
+          name: r[0].toString().trim(),
+          order: r[1] || 999,
+          sheetName: topicSheet
+        });
+      }
     }
   });
 
@@ -281,4 +297,229 @@ function getContentAdmins() {
   });
   
   return contentAdmins;
+}
+
+// ============================================================
+// OPTIMIZED HELPER FUNCTIONS FOR BATCH OPERATIONS
+// ============================================================
+
+/**
+ * Cache for frequently accessed data within a single operation
+ * Reduces redundant API calls
+ */
+var _dataCache = {
+  users: null,
+  assessmentSheets: null,
+  admins: null,
+  contentAdmins: null,
+  timestamp: 0,
+  CACHE_TTL: 30000 // 30 seconds cache lifetime
+};
+
+/**
+ * Clears the data cache
+ */
+function _clearCache() {
+  _dataCache.users = null;
+  _dataCache.assessmentSheets = null;
+  _dataCache.admins = null;
+  _dataCache.contentAdmins = null;
+  _dataCache.timestamp = 0;
+}
+
+/**
+ * Gets cached existing users or fetches fresh data
+ */
+function getCachedExistingUsers() {
+  var now = new Date().getTime();
+  if (_dataCache.users && (now - _dataCache.timestamp) < _dataCache.CACHE_TTL) {
+    return _dataCache.users;
+  }
+  _dataCache.users = getExistingUsers();
+  _dataCache.timestamp = now;
+  return _dataCache.users;
+}
+
+/**
+ * Gets cached assessment sheets or fetches fresh data
+ */
+function getCachedAssessmentSheets() {
+  var now = new Date().getTime();
+  if (_dataCache.assessmentSheets && (now - _dataCache.timestamp) < _dataCache.CACHE_TTL) {
+    return _dataCache.assessmentSheets;
+  }
+  _dataCache.assessmentSheets = getAssessmentSheets();
+  _dataCache.timestamp = now;
+  return _dataCache.assessmentSheets;
+}
+
+/**
+ * Gets cached admin list or fetches fresh data
+ */
+function getCachedAdmins() {
+  var now = new Date().getTime();
+  if (_dataCache.admins && (now - _dataCache.timestamp) < _dataCache.CACHE_TTL) {
+    return _dataCache.admins;
+  }
+  _dataCache.admins = getAdmins();
+  _dataCache.timestamp = now;
+  return _dataCache.admins;
+}
+
+/**
+ * Gets cached content admin list or fetches fresh data
+ */
+function getCachedContentAdmins() {
+  var now = new Date().getTime();
+  if (_dataCache.contentAdmins && (now - _dataCache.timestamp) < _dataCache.CACHE_TTL) {
+    return _dataCache.contentAdmins;
+  }
+  _dataCache.contentAdmins = getContentAdmins();
+  _dataCache.timestamp = now;
+  return _dataCache.contentAdmins;
+}
+
+/**
+ * Batch set values in a sheet (single API call instead of multiple setValue calls)
+ * @param {Sheet} sheet - The sheet object
+ * @param {number} startRow - Starting row (1-indexed)
+ * @param {number} startCol - Starting column (1-indexed)
+ * @param {Array<Array>} data - 2D array of values to set
+ */
+function batchSetValues(sheet, startRow, startCol, data) {
+  if (!data || data.length === 0) return;
+  var numRows = data.length;
+  var numCols = data[0].length;
+  sheet.getRange(startRow, startCol, numRows, numCols).setValues(data);
+}
+
+/**
+ * Batch set a single value across multiple cells in a column
+ * @param {Sheet} sheet - The sheet object
+ * @param {number} startRow - Starting row (1-indexed)
+ * @param {number} col - Column number (1-indexed)
+ * @param {number} numRows - Number of rows to fill
+ * @param {*} value - Value to set
+ */
+function batchSetColumnValue(sheet, startRow, col, numRows, value) {
+  if (numRows <= 0) return;
+  var data = [];
+  for (var i = 0; i < numRows; i++) {
+    data.push([value]);
+  }
+  sheet.getRange(startRow, col, numRows, 1).setValues(data);
+}
+
+/**
+ * Optimized protection setup using addEditors (batch) instead of individual addEditor calls
+ * @param {Protection} protection - The protection object
+ * @param {Array<string>} editorEmails - Array of editor email addresses
+ */
+function batchAddEditors(protection, editorEmails) {
+  if (!editorEmails || editorEmails.length === 0) return;
+  
+  // Filter out empty emails and deduplicate
+  var validEditors = [];
+  var seen = {};
+  
+  editorEmails.forEach(function(email) {
+    if (email && typeof email === 'string') {
+      var cleanEmail = email.trim().toLowerCase();
+      if (cleanEmail && !seen[cleanEmail]) {
+        seen[cleanEmail] = true;
+        validEditors.push(cleanEmail);
+      }
+    }
+  });
+  
+  if (validEditors.length > 0) {
+    try {
+      protection.addEditors(validEditors);
+    } catch(e) {
+      // Fallback to individual adds if batch fails
+      validEditors.forEach(function(email) {
+        try { protection.addEditor(email); } catch(e2) {}
+      });
+    }
+  }
+}
+
+/**
+ * Get all editor emails for a candidate (admins + content admins + mentor chain)
+ * @param {string} mentorChain - Comma-separated mentor chain string
+ * @returns {Array<string>} Array of editor email addresses
+ */
+function getEditorEmailsForCandidate(mentorChain) {
+  var editors = [];
+  
+  // Add admins
+  var admins = getCachedAdmins();
+  editors = editors.concat(admins);
+  
+  // Add content admins
+  var contentAdmins = getCachedContentAdmins();
+  editors = editors.concat(contentAdmins);
+  
+  // Add mentor chain
+  if (mentorChain) {
+    var mentorsArray = mentorChain.split(',');
+    mentorsArray.forEach(function(m) {
+      var cleanM = m.trim().toLowerCase();
+      if (cleanM) {
+        editors.push(cleanM);
+      }
+    });
+  }
+  
+  return editors;
+}
+
+/**
+ * Optimized sheet data reading - reads all needed data in single API call
+ * @param {Sheet} sheet - The sheet object
+ * @returns {Object} Object containing headers, maxRows, maxCols, lastUserCol
+ */
+function getSheetMetadata(sheet) {
+  var maxCols = sheet.getMaxColumns();
+  var maxRows = sheet.getMaxRows();
+  var headers = sheet.getRange(1, 1, 1, maxCols).getValues()[0];
+  
+  var lastUserCol = 0;
+  for (var i = headers.length - 1; i >= 0; i--) {
+    if (headers[i] !== '' && headers[i] != null) {
+      lastUserCol = i + 1;
+      break;
+    }
+  }
+  
+  return {
+    headers: headers,
+    maxRows: maxRows,
+    maxCols: maxCols,
+    lastUserCol: lastUserCol
+  };
+}
+
+/**
+ * Batch remove protections by column numbers
+ * @param {Sheet} sheet - The sheet object
+ * @param {Array<number>} columnNumbers - Array of column numbers to remove protections from
+ */
+function batchRemoveProtectionsByColumns(sheet, columnNumbers) {
+  if (!columnNumbers || columnNumbers.length === 0) return;
+  
+  var existingProtections = sheet.getProtections(SpreadsheetApp.ProtectionType.RANGE);
+  var protectionsToRemove = [];
+  
+  existingProtections.forEach(function(p) {
+    var protCol = p.getRange().getColumn();
+    if (columnNumbers.indexOf(protCol) !== -1) {
+      protectionsToRemove.push(p);
+    }
+  });
+  
+  // Remove in batch
+  protectionsToRemove.forEach(function(p) {
+    try { p.remove(); } catch(e) {}
+  });
 }
