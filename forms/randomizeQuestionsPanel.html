@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 16px; color: #333; margin: 0; }
+    .form-group { margin-bottom: 12px; }
+    label { font-weight: bold; font-size: 13px; display: block; margin-bottom: 5px; }
+    select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+    .btn { background: #4285f4; color: #fff; padding: 10px; width: 100%; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+    .btn:hover { background: #3367d6; }
+    .btn:disabled { background: #a9c3ee; cursor: default; }
+    #message { margin-top: 12px; font-size: 13px; padding: 10px; border-radius: 6px; display: none; }
+    #message.error { background: #fce8e6; color: #c5221f; display: block; }
+    #message.info { background: #e8f0fe; color: #1a73e8; display: block; }
+    #results { margin-top: 15px; }
+    .topic-group { margin-bottom: 14px; }
+    .topic-title { font-weight: bold; color: #1a73e8; font-size: 13px; margin-bottom: 6px; }
+    .question-item { background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 4px solid #4285f4; font-size: 13px; }
+    .question-item.done { opacity: 0.5; }
+    .question-text { margin-bottom: 6px; }
+    .question-link { display: block; font-size: 12px; margin-bottom: 6px; }
+    .mark-btn { font-size: 12px; padding: 5px 10px; border: 1px solid #4285f4; color: #4285f4; background: #fff; border-radius: 4px; cursor: pointer; }
+    .mark-btn:hover { background: #e8f0fe; }
+  </style>
+</head>
+<body>
+  <div class="form-group">
+    <label>Candidate:</label>
+    <select id="candidateSelect"></select>
+  </div>
+  <div class="form-group">
+    <label>Assessment Sheet:</label>
+    <select id="sheetSelect"></select>
+  </div>
+  <button class="btn" id="generateBtn" onclick="generate()">Generate</button>
+  <div id="message"></div>
+  <div id="results"></div>
+
+  <script>
+    var currentSheetName = '';
+    var currentCandidateEmail = '';
+
+    document.addEventListener('DOMContentLoaded', function () {
+      google.script.run.withSuccessHandler(function (candidates) {
+        var sel = document.getElementById('candidateSelect');
+        candidates.forEach(function (c) {
+          var opt = document.createElement('option');
+          opt.value = c.email;
+          opt.text = c.name;
+          sel.appendChild(opt);
+        });
+      }).withFailureHandler(showError).getRandomizerCandidates();
+
+      google.script.run.withSuccessHandler(function (sheets) {
+        var sel = document.getElementById('sheetSelect');
+        sheets.forEach(function (s) {
+          var opt = document.createElement('option');
+          opt.value = s.name;
+          opt.text = s.name;
+          sel.appendChild(opt);
+        });
+      }).withFailureHandler(showError).getRandomizerSheets();
+    });
+
+    function showError(err) {
+      var msg = document.getElementById('message');
+      msg.className = 'error';
+      msg.textContent = err && err.message ? err.message : err;
+    }
+
+    function showInfo(text) {
+      var msg = document.getElementById('message');
+      msg.className = 'info';
+      msg.textContent = text;
+    }
+
+    function clearMessage() {
+      var msg = document.getElementById('message');
+      msg.className = '';
+      msg.textContent = '';
+      msg.style.display = 'none';
+    }
+
+    function generate() {
+      var sheetName = document.getElementById('sheetSelect').value;
+      var candidateEmail = document.getElementById('candidateSelect').value;
+      if (!sheetName || !candidateEmail) return;
+
+      currentSheetName = sheetName;
+      currentCandidateEmail = candidateEmail;
+
+      clearMessage();
+      document.getElementById('results').innerHTML = '';
+      document.getElementById('generateBtn').disabled = true;
+
+      google.script.run
+        .withSuccessHandler(function (topicGroups) {
+          document.getElementById('generateBtn').disabled = false;
+          renderResults(topicGroups);
+        })
+        .withFailureHandler(function (err) {
+          document.getElementById('generateBtn').disabled = false;
+          showError(err);
+        })
+        .generateRandomizedQuestions(sheetName, candidateEmail);
+    }
+
+    function renderResults(topicGroups) {
+      var resDiv = document.getElementById('results');
+      resDiv.innerHTML = '';
+
+      topicGroups.forEach(function (group) {
+        var groupDiv = document.createElement('div');
+        groupDiv.className = 'topic-group';
+
+        var title = document.createElement('div');
+        title.className = 'topic-title';
+        title.textContent = group.topic;
+        groupDiv.appendChild(title);
+
+        group.questions.forEach(function (q) {
+          groupDiv.appendChild(renderQuestion(q));
+        });
+
+        resDiv.appendChild(groupDiv);
+      });
+    }
+
+    function renderQuestion(q) {
+      var item = document.createElement('div');
+      item.className = 'question-item';
+      item.id = 'question-row-' + q.row;
+
+      var text = document.createElement('div');
+      text.className = 'question-text';
+      text.textContent = q.question;
+      item.appendChild(text);
+
+      if (q.link) {
+        var link = document.createElement('a');
+        link.className = 'question-link';
+        link.href = q.link;
+        link.target = '_blank';
+        link.textContent = q.link;
+        item.appendChild(link);
+      }
+
+      var btn = document.createElement('button');
+      btn.className = 'mark-btn';
+      btn.textContent = 'Mark answered';
+      btn.onclick = function () { markAnswered(q.row, item, btn); };
+      item.appendChild(btn);
+
+      return item;
+    }
+
+    function markAnswered(row, item, btn) {
+      btn.disabled = true;
+      google.script.run
+        .withSuccessHandler(function () {
+          item.classList.add('done');
+          item.removeChild(btn);
+        })
+        .withFailureHandler(function (err) {
+          btn.disabled = false;
+          showError(err);
+        })
+        .markQuestionAnswered(currentSheetName, row, currentCandidateEmail);
+    }
+  </script>
+</body>
+</html>
